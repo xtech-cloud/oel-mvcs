@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 using XTC.oelMVCS;
 
-public class DynamicMVCS : MonoBehaviour
+public class DynamicSample: MonoBehaviour
 {
     public Button btnLoad;
     public Button btnDestroy;
@@ -21,7 +21,7 @@ public class DynamicMVCS : MonoBehaviour
     void Awake()
     {
         Debug.Log("---------------  Awake ------------------------");
-        XTC.oelMVCS.Logger logger = new XTC.oelMVCS.Logger();
+        XTC.oelMVCS.Logger logger = new UnityLogger();
         UIFacade.logger = logger;
         framework.logger = logger;
         framework.config = new Config();
