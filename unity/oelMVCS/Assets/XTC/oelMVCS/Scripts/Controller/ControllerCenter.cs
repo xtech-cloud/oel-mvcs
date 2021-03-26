@@ -4,7 +4,7 @@ namespace XTC.oelMVCS
 {
     public class ControllerCenter
     {
-        private Dictionary<string, Controller> controllers  = new Dictionary<string, Controller>();
+        private Dictionary<string, Controller.Inner> controllers  = new Dictionary<string, Controller.Inner>();
 
         private Board board_
         {
@@ -17,12 +17,12 @@ namespace XTC.oelMVCS
             board_ = _board;
         }
 
-        public Error Register(string _uuid, Controller _controller)
+        public Error Register(string _uuid, Controller.Inner _inner)
         {
             board_.logger.Info("register controller {0}", _uuid);
             if (controllers.ContainsKey(_uuid))
                 return Error.NewAccessErr("controller {0} exists", _uuid);
-            controllers[_uuid] = _controller;
+            controllers[_uuid] = _inner;
             return Error.OK;
         }
 
@@ -35,7 +35,7 @@ namespace XTC.oelMVCS
             return Error.OK;
         }
 
-        public Controller FindController(string _uuid)
+        public Controller.Inner FindController(string _uuid)
         {
             if (controllers.ContainsKey(_uuid))
                 return controllers[_uuid];
@@ -44,17 +44,17 @@ namespace XTC.oelMVCS
 
         public void Setup()
         {
-            foreach (Controller controller in controllers.Values)
+            foreach (Controller.Inner inner in controllers.Values)
             {
-                controller.Setup(board_);
+                inner.Setup(board_);
             }
         }
 
         public void Dismantle()
         {
-            foreach (Controller controller in controllers.Values)
+            foreach (Controller.Inner inner in controllers.Values)
             {
-                controller.Dismantle();
+                inner.Dismantle();
             }
         }
     }

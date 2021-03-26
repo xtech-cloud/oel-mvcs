@@ -8,31 +8,64 @@ namespace XTC.oelMVCS
 
     public class View
     {
+        #region
+        // 内部类，用于接口隔离,隐藏View无需暴露给外部的公有方法
+        public class Inner
+        {
+            public View view
+            {
+                get;
+                private set;
+            }
+
+
+            public Inner(View _view)
+            {
+                view = _view;
+            }
+
+            public void Setup(Board _board)
+            {
+                view.board_ = _board;
+                view.board_.logger.Trace("setup view");
+                view.setup();
+                view.bindEvents();
+            }
+
+            public void Dismantle()
+            {
+                view.board_.logger.Trace("dismantle view");
+                view.unbindEvents();
+                view.dismantle();
+            }
+
+            public Error Handle(string _action, Model.Status _status, object _data)
+            {
+                if (!view.handlers.ContainsKey(_action))
+                    return Error.NewParamErr("handler {0} exists", _action);
+                view.handlers[_action](_status, _data);
+                return Error.OK;
+            }
+        }
+        #endregion
 
         protected Logger logger_
         {
-            get;
-            set;
+            get
+            {
+                return board_.logger;
+            }
         }
+
         protected Config config_
         {
-            get;
-            set;
+            get
+            {
+                return board_.config;
+            }
         }
 
-        private ModelCenter modelCenter_
-        {
-            get;
-            set;
-        }
-
-        protected ViewCenter viewCenter_
-        {
-            get;
-            set;
-        }
-
-        private ServiceCenter serviceCenter_
+        private Board board_
         {
             get;
             set;
@@ -40,65 +73,43 @@ namespace XTC.oelMVCS
 
         private Dictionary<string, Action<Model.Status, object>> handlers = new Dictionary<string, Action<Model.Status, object>>();
 
-        public void Setup(Board _board)
+
+        protected Model findModel(string _uuid)
         {
-            logger_ = _board.logger;
-            config_ = _board.config;
-            viewCenter_ = _board.viewCenter;
-            modelCenter_ = _board.modelCenter;
-            serviceCenter_ = _board.serviceCenter;
-            logger_.Trace("setup view");
-            setup();
-            logger_.Trace("bind events");
-            bindEvents();
+            Model.Inner inner = board_.modelCenter.FindModel(_uuid);
+            if (null == inner)
+                return null;
+            return inner.model;
         }
 
-        public void Dismantle()
+        protected Service findService(string _uuid)
         {
-            logger_.Trace("unbind events");
-            unbindEvents();
-            logger_.Trace("dismantle view");
-            dismantle();
+            Service.Inner inner = board_.serviceCenter.FindService(_uuid);
+            if (null == inner)
+                return null;
+            return inner.service;
         }
 
-        public void Handle(string _action, Model.Status _status, object _data)
-        {
-            if (!handlers.ContainsKey(_action))
-                return;
-            handlers[_action](_status, _data);
-        }
-
-        protected virtual void dismantle()
-        {
-
-        }
-
+        // 派生类需要实现的方法
         protected virtual void setup()
         {
 
         }
 
-        protected Model findModel(string _uuid)
-        {
-            return modelCenter_.FindModel(_uuid);
-        }
-
-        protected View findView(string _uuid)
-        {
-            return viewCenter_.FindView(_uuid);
-        }
-
-        protected Service findService(string _uuid)
-        {
-            return serviceCenter_.FindService(_uuid);
-        }
-
+        // 派生类需要实现的方法
         protected virtual void bindEvents()
         {
 
         }
 
+        // 派生类需要实现的方法
         protected virtual void unbindEvents()
+        {
+
+        }
+
+        // 派生类需要实现的方法
+        protected virtual void dismantle()
         {
 
         }

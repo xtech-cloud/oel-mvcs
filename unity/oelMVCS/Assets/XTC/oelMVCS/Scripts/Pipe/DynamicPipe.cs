@@ -19,73 +19,77 @@ namespace XTC.oelMVCS
 
         public Error PushModel(string _uuid, Model _model)
         {
-            Error err = board_.modelCenter.Register(_uuid, _model);
+            Model.Inner inner = new Model.Inner(_model);
+            Error err = board_.modelCenter.Register(_uuid, inner);
             if (!err.IsOK)
                 return err;
-            _model.Setup(board_);
+            inner.Setup(board_);
             return Error.OK;
         }
 
         public Error PopModel(string _uuid)
         {
-            Model model = board_.modelCenter.FindModel(_uuid);
-            if (null == model)
+            Model.Inner inner = board_.modelCenter.FindModel(_uuid);
+            if (null == inner)
                 return Error.NewAccessErr("model {0} not found", _uuid);
-            model.Dismantle();
+            inner.Dismantle();
             return board_.modelCenter.Cancel(_uuid);
         }
 
         public Error PushView(string _uuid, View _view)
         {
-            Error err = board_.viewCenter.Register(_uuid, _view);
+            View.Inner inner = new View.Inner(_view);
+            Error err = board_.viewCenter.Register(_uuid, inner);
             if (!err.IsOK)
                 return err;
-            _view.Setup(board_);
+            inner.Setup(board_);
             return Error.OK;
         }
 
         public Error PopView(string _uuid)
         {
-            View view = board_.viewCenter.FindView(_uuid);
-            if (null == view)
+            View.Inner inner = board_.viewCenter.FindView(_uuid);
+            if (null == inner)
                 return Error.NewAccessErr("view {0} not found", _uuid);
-            view.Dismantle();
+            inner.Dismantle();
             return board_.viewCenter.Cancel(_uuid);
         }
 
         public Error PushController(string _uuid, Controller _controller)
         {
-            Error err = board_.controllerCenter.Register(_uuid, _controller);
+            Controller.Inner inner = new Controller.Inner(_controller);
+            Error err = board_.controllerCenter.Register(_uuid, inner);
             if (!err.IsOK)
                 return err;
-            _controller.Setup(board_);
+            inner.Setup(board_);
             return Error.OK;
         }
 
         public Error PopController(string _uuid)
         {
-            Controller controller = board_.controllerCenter.FindController(_uuid);
-            if (null == controller)
+            Controller.Inner inner = board_.controllerCenter.FindController(_uuid);
+            if (null == inner)
                 return Error.NewAccessErr("controller {0} not found", _uuid);
-            controller.Dismantle();
+            inner.Dismantle();
             return board_.controllerCenter.Cancel(_uuid);
         }
 
         public Error PushService(string _uuid, Service _service)
         {
-            Error err = board_.serviceCenter.Register(_uuid, _service);
+            Service.Inner inner = new Service.Inner(_service);
+            Error err = board_.serviceCenter.Register(_uuid, inner);
             if (!err.IsOK)
                 return err;
-            _service.Setup(board_);
+            inner.Setup(board_);
             return Error.OK;
         }
 
         public Error PopService(string _uuid)
         {
-            Service service = board_.serviceCenter.FindService(_uuid);
-            if (null == service)
+            Service.Inner inner = board_.serviceCenter.FindService(_uuid);
+            if (null == inner)
                 return Error.NewAccessErr("controller {0} not found", _uuid);
-            service.Dismantle();
+            inner.Dismantle();
             return board_.serviceCenter.Cancel(_uuid);
         }
     }

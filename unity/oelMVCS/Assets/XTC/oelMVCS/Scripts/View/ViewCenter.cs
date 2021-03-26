@@ -10,14 +10,14 @@ namespace XTC.oelMVCS
             set;
         }
 
-        private Dictionary<string, View> views = new Dictionary<string, View>();
+        private Dictionary<string, View.Inner> views = new Dictionary<string, View.Inner>();
 
         public ViewCenter(Board _board)
         {
             board_ = _board;
         }
 
-        public Error Register(string _uuid, View _view)
+        public Error Register(string _uuid, View.Inner _view)
         {
             board_.logger.Info("register view {0}", _uuid);
             if (views.ContainsKey(_uuid))
@@ -36,7 +36,7 @@ namespace XTC.oelMVCS
         }
 
 
-        public View FindView(string _uuid)
+        public View.Inner FindView(string _uuid)
         {
             if (views.ContainsKey(_uuid))
                 return views[_uuid];
@@ -46,15 +46,15 @@ namespace XTC.oelMVCS
 
         public void Setup()
         {
-            foreach (View view in views.Values)
+            foreach (View.Inner inner in views.Values)
             {
-                view.Setup(board_);
+                inner.Setup(board_);
             }
         }
 
         public void Dismantle()
         {
-            foreach (View view in views.Values)
+            foreach (View.Inner view in views.Values)
             {
                 view.Dismantle();
             }
@@ -62,9 +62,9 @@ namespace XTC.oelMVCS
 
         public void HandleAction(string _action, Model.Status _status, object _obj)
         {
-            foreach (View view in views.Values)
+            foreach (View.Inner inner in views.Values)
             {
-                view.Handle(_action, _status, _obj);
+                inner.Handle(_action, _status, _obj);
             }
         }
     }

@@ -8,6 +8,36 @@ namespace XTC.oelMVCS
 
     public class Service
     {
+        #region
+        // 内部类，用于接口隔离,隐藏Service无需暴露给外部的公有方法
+        public class Inner
+        {
+            public Service service
+            {
+                get;
+                private set;
+            }
+
+            public Inner(Service _service)
+            {
+                service = _service;
+            }
+
+            internal void Setup(Board _board)
+            {
+                service.board_ = _board;
+                service.board_.logger.Trace("setup service");
+                service.setup();
+            }
+
+            internal void Dismantle()
+            {
+                service.board_.logger.Trace("dismantle service");
+                service.dismantle();
+            }
+        }
+        #endregion
+
         public class Options
         {
             public Dictionary<string, string> header = new Dictionary<string, string>();
@@ -30,62 +60,52 @@ namespace XTC.oelMVCS
 
         protected Logger logger_
         {
-            get;
-            set;
+            get
+            {
+                return board_.logger;
+            }
         }
+
         protected Config config_
         {
-            get;
-            set;
+            get
+            {
+                return board_.config;
+            }
         }
 
-        private ServiceCenter serviceCenter_
+        private Board board_
         {
             get;
             set;
         }
 
-        private ModelCenter modelCenter_
+        protected Model findModel(string _uuid)
         {
-            get;
-            set;
+            Model.Inner inner = board_.modelCenter.FindModel(_uuid);
+            if (null == inner)
+                return null;
+            return inner.model;
         }
 
-
-        public void Setup(Board _board)
+        protected Service findService(string _uuid)
         {
-            logger_ = _board.logger;
-            config_ = _board.config;
-            serviceCenter_ = _board.serviceCenter;
-            modelCenter_ = _board.modelCenter;
-            logger_.Trace("setup service");
-            setup();
+            Service.Inner inner = board_.serviceCenter.FindService(_uuid);
+            if (null == inner)
+                return null;
+            return inner.service;
         }
 
-        public void Dismantle()
-        {
-            logger_.Trace("dismantle service");
-            dismantle();
-        }
-
-        protected virtual void dismantle()
-        {
-
-        }
-
+        // 派生类需要实现的方法
         protected virtual void setup()
         {
 
         }
 
-        protected Model findModel(string _uuid)
+        // 派生类需要实现的方法
+        protected virtual void dismantle()
         {
-            return modelCenter_.FindModel(_uuid);
-        }
 
-        protected Service findService(string _uuid)
-        {
-            return serviceCenter_.FindService(_uuid);
         }
 
         protected Error post(string _url, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)

@@ -94,7 +94,7 @@ public class SampleView : View
         uiLogin.root.SetActive(true);
         uiHome.root.SetActive(false);
         route("/simple/update", (_status, _data)=>{
-            Debug.Log(_status.uuid);
+            Debug.Log(_status);
         });
     }
 
@@ -167,7 +167,7 @@ public class SampleController : Controller
     }
 }
 
-public class SampleService : Service
+public class SampleService : UnityService
 {
     public const string NAME = "SampleService";
 

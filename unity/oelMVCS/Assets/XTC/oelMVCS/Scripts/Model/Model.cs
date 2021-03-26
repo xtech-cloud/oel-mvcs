@@ -5,6 +5,35 @@ namespace XTC.oelMVCS
 
     public class Model
     {
+        #region
+        // 内部类，用于接口隔离,隐藏Model无需暴露给外部的公有方法
+        public class Inner
+        {
+            public Model model
+            {
+                get;
+                private set;
+            }
+
+            public Inner(Model _model)
+            {
+                model = _model;
+            }
+
+            internal void Setup(Board _board)
+            {
+                model.board_ = _board;
+                model.board_.logger.Trace("setup model");
+                model.setup();
+            }
+
+            internal void Dismantle()
+            {
+                model.board_.logger.Trace("dismantle model");
+                model.dismantle();
+            }
+        }
+        #endregion
 
         public class Status
         {
@@ -33,26 +62,20 @@ namespace XTC.oelMVCS
 
         protected Logger logger_
         {
-            get;
-            set;
+            get
+            {
+                return board_.logger;
+            }
         }
+
         protected Config config_
         {
-            get;
-            set;
+            get
+            {
+                return board_.config;
+            }
         }
 
-        private ModelCenter modelCenter_
-        {
-            get;
-            set;
-        }
-
-        private ControllerCenter controllerCenter_
-        {
-            get;
-            set;
-        }
 
         protected Status status_
         {
@@ -60,38 +83,31 @@ namespace XTC.oelMVCS
             set;
         }
 
-        public void Setup(Board _board)
+        private Board board_
         {
-            logger_ = _board.logger;
-            config_ = _board.config;
-            modelCenter_ = _board.modelCenter;
-            controllerCenter_ = _board.controllerCenter;
-
-            property = new Dictionary<string, object>();
-
-            logger_.Trace("setup model");
-            setup();
-        }
-
-        public void Dismantle()
-        {
-            logger_.Trace("dismantle model");
-            dismantle();
+            get;
+            set;
         }
 
         public void Broadcast(string _action, object _data)
         {
-            modelCenter_.Broadcast(_action, status_, _data);
+            board_.modelCenter.Broadcast(_action, status_, _data);
         }
 
         protected Model findModel(string _uuid)
         {
-            return modelCenter_.FindModel(_uuid);
+            Model.Inner inner = board_.modelCenter.FindModel(_uuid);
+            if (null == inner)
+                return null;
+            return inner.model;
         }
 
         protected Controller findController(string _uuid)
         {
-            return controllerCenter_.FindController(_uuid);
+            Controller.Inner inner = board_.controllerCenter.FindController(_uuid);
+            if (null == inner)
+                return null;
+            return inner.controller;
         }
 
 

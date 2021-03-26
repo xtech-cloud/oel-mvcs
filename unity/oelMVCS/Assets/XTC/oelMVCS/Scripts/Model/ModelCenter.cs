@@ -5,7 +5,7 @@ namespace XTC.oelMVCS
     public class ModelCenter
     {
         // 数据列表
-        private Dictionary<string, Model> models = new Dictionary<string, Model>();
+        private Dictionary<string, Model.Inner> models = new Dictionary<string, Model.Inner>();
         // 状态列表
         private Dictionary<string, Model.Status> status = new Dictionary<string, Model.Status>();
 
@@ -20,13 +20,13 @@ namespace XTC.oelMVCS
             board_ = _board;
         }
 
-        public Error Register(string _uuid, Model _model)
+        public Error Register(string _uuid, Model.Inner _inner)
         {
             board_.logger.Info("register model {0}", _uuid);
 
             if (models.ContainsKey(_uuid))
                 return Error.NewAccessErr("model {0} exists", _uuid);
-            models[_uuid] = _model;
+            models[_uuid] = _inner;
             return Error.OK;
         }
 
@@ -40,7 +40,7 @@ namespace XTC.oelMVCS
             return Error.OK;
         }
 
-        public Model FindModel(string _uuid)
+        public Model.Inner FindModel(string _uuid)
         {
             if (models.ContainsKey(_uuid))
                 return models[_uuid];
@@ -49,17 +49,17 @@ namespace XTC.oelMVCS
 
         public void Setup()
         {
-            foreach (Model model in models.Values)
+            foreach (Model.Inner inner in models.Values)
             {
-                model.Setup(board_);
+                inner.Setup(board_);
             }
         }
 
         public void Dismantle()
         {
-            foreach (Model model in models.Values)
+            foreach (Model.Inner inner in models.Values)
             {
-                model.Dismantle();
+                inner.Dismantle();
             }
         }
 

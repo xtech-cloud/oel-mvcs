@@ -10,7 +10,7 @@ namespace XTC.oelMVCS
             private set;
         }
 
-        private Dictionary<string, Service> services  = new Dictionary<string, Service>();
+        private Dictionary<string, Service.Inner> services  = new Dictionary<string, Service.Inner>();
 
         private Board board_
         {
@@ -24,13 +24,13 @@ namespace XTC.oelMVCS
             board_ = _board;
         }
 
-        public Error Register(string _uuid, Service _service)
+        public Error Register(string _uuid, Service.Inner _inner)
         {
             board_.logger.Info("register service {0}", _uuid);
 
             if (services.ContainsKey(_uuid))
                 return Error.NewAccessErr("services {0} exists", _uuid);
-            services[_uuid] = _service;
+            services[_uuid] = _inner;
             return Error.OK;
         }
 
@@ -43,7 +43,7 @@ namespace XTC.oelMVCS
             return Error.OK;
         }
 
-        public Service FindService(string _uuid)
+        public Service.Inner FindService(string _uuid)
         {
             if (services.ContainsKey(_uuid))
                 return services[_uuid];
@@ -54,17 +54,17 @@ namespace XTC.oelMVCS
         {
             storages = new Dictionary<string, string>();
 
-            foreach (Service service in services.Values)
+            foreach (Service.Inner inner in services.Values)
             {
-                service.Setup(board_);
+                inner.Setup(board_);
             }
         }
 
         public void Dismantle()
         {
-            foreach (Service service in services.Values)
+            foreach (Service.Inner inner in services.Values)
             {
-                service.Dismantle();
+                inner.Dismantle();
             }
         }
     }
