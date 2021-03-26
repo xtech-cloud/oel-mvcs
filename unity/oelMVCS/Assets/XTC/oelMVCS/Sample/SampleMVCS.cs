@@ -18,9 +18,15 @@ public class SampleModel : Model
     protected override void setup()
     {
         Debug.Log("setup SampleModel");
-        status_ = new SampleStatus();
-        //status_.SetModelCenter(center_);
-        //status_.Register(NAME);
+        Error err;
+        status_ = this.spawnStatus<SampleStatus>("simple", (_board, _uuid) =>
+        {
+            return new SampleStatus(_board, _uuid);
+        }, out err);
+        Model.Status test = this.spawnStatus<SampleStatus>("test", (_board, _uuid) =>
+        {
+            return new SampleStatus(_board, _uuid);
+        }, out err);
     }
 
     protected override void dismantle()
@@ -93,7 +99,8 @@ public class SampleView : View
         Debug.Log("setup SampleView");
         uiLogin.root.SetActive(true);
         uiHome.root.SetActive(false);
-        route("/simple/update", (_status, _data)=>{
+        route("/simple/update", (_status, _data) =>
+        {
             Debug.Log(_status);
         });
     }
@@ -202,7 +209,7 @@ public class SampleService : UnityService
                 model.UpdateLoginResult(_reply);
         }, (_error) =>
         {
-            model.UpdateLoginResult(_error);
+            model.UpdateLoginResult(_error.message);
         }, null);
     }
 }

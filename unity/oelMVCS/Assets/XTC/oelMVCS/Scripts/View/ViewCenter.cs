@@ -38,9 +38,9 @@ namespace XTC.oelMVCS
 
         public View.Inner FindView(string _uuid)
         {
-            if (views.ContainsKey(_uuid))
-                return views[_uuid];
-            return null;
+            View.Inner inner = null;
+            views.TryGetValue(_uuid, out inner);
+            return inner;
         }
 
 

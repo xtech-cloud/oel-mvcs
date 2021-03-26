@@ -17,7 +17,7 @@ namespace XTC.oelMVCS
 
         protected virtual IEnumerator request(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {
-            string url = domain + _url;
+            string url = _url;
             logger_.Debug("request: {0}", url);
             var request = new UnityWebRequest(url, _method);
 
@@ -49,7 +49,7 @@ namespace XTC.oelMVCS
             if (request.responseCode != 200)
             {
                 if (null != _onError)
-                    _onError(string.Format("status code: {0}", request.responseCode));
+                    _onError(Error.NewAccessErr(string.Format("status code: {0}", request.responseCode)));
                 yield break;
             }
 

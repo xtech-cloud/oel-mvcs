@@ -3,6 +3,9 @@
 namespace XTC.oelMVCS
 {
 
+    /// <summary>
+    /// 数据层
+    /// </summary>
     public class Model
     {
         #region
@@ -35,30 +38,55 @@ namespace XTC.oelMVCS
         }
         #endregion
 
+        /// <summary> 状态 </summary>
         public class Status
         {
+            /// 错误码
             public int code;
+            /// 错误信息
             public string message;
 
+            private Board board_
+            {
+                get;
+                set;
+            }
+
+            /// 数据层中心中的唯一识别码
             public string uuid
             {
                 get;
                 private set;
             }
 
-            // 访问指定状态
+            public Status(Board _board, string _uuid)
+            {
+                board_ = _board;
+                uuid = _uuid;
+            }
+
+            public Status()
+            {
+            }
+
+            /// <summary> 访问数据中心中的已注册状态 </summary>
+            /// <param name="_uuid"> 状态的唯一识别码 </param>
             public Status Access(string _uuid)
             {
-                return null;
+                if(string.IsNullOrEmpty(_uuid))
+                    return null;
+                return board_.modelCenter.FindStatus(_uuid);
             }
         }
 
 
+        /*
         public Dictionary<string, object> property
         {
             get;
             private set;
         }
+        */
 
         protected Logger logger_
         {
@@ -89,11 +117,19 @@ namespace XTC.oelMVCS
             set;
         }
 
+        /// <summary>向视图层广播消息</summary>
+        /// <param name="_action">行为</param>
+        /// <param name="_data">数据</param>
         public void Broadcast(string _action, object _data)
         {
             board_.modelCenter.Broadcast(_action, status_, _data);
         }
 
+        /// <summary>
+        /// 查找一个数据层
+        /// </summary>
+        /// <param name="_uuid"> 数据层唯一识别码</param>
+        /// <returns>找到的数据层</returns>
         protected Model findModel(string _uuid)
         {
             Model.Inner inner = board_.modelCenter.FindModel(_uuid);
@@ -102,6 +138,11 @@ namespace XTC.oelMVCS
             return inner.model;
         }
 
+        /// <summary>
+        /// 查找一个控制层
+        /// </summary>
+        /// <param name="_uuid"> 控制层唯一识别码</param>
+        /// <returns>找到的控制层</returns>
         protected Controller findController(string _uuid)
         {
             Controller.Inner inner = board_.controllerCenter.FindController(_uuid);
@@ -110,14 +151,42 @@ namespace XTC.oelMVCS
             return inner.controller;
         }
 
+        /// <summary>
+        /// 从数据层中创建一个已经注册的状态
+        /// </summary>
+        /// <param name="_uuid">状态唯一识别码</param>
+        /// <param name="_err">错误</param>
+        /// <returns>状态<returns>
+        protected Model.Status spawnStatus<T>(string _uuid, System.Action<Board, string> _constructor, out Error _err) where T:Model.Status, new()
+        {
+            Status status = _constructor(board_, _uuid);
+            _err = board_.modelCenter.PushStatus(_uuid, status);
+            if(_err.IsOK)
+                return status;
+            return null;
+        }
 
-        // 派生类需要实现的方法
+        /// <summary>
+        /// 从数据中心中销毁一个已经注册的状态
+        /// </summary>
+        /// <param name="_uuid">状态唯一识别码</param>
+        /// <param name="_err">错误</param>
+        protected void killStatus(string _uuid, out Error _err)
+        {
+            _err = board_.modelCenter.PopStatus(_uuid);
+        }
+
+        /// <summary>
+        /// 控制层的安装
+        /// </summary>
         protected virtual void setup()
         {
 
         }
 
-        // 派生类需要实现的方法
+        /// <summary>
+        /// 控制层的拆卸
+        /// </summary>
         protected virtual void dismantle()
         {
 

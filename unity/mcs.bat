@@ -4,7 +4,7 @@ set libpath=..\_bin\
 ::----------------------------------
 set name=oelMVCS
 set depref=
-set libref=.\oelMVCS\Assets\3rd\uniAny-v1.1.dll;.\oelMVCS\Assets\3rd\uniError-v1.2.dll;.\oelMVCS\Assets\3rd\uniLogger-1.0.0.dll;.\oelMVCS\Assets\3rd\uniSimpleJSON-v1.0.dll
+set libref=
 ::----------------------------------
 MD %libpath%
 set outfile=%libpath%\%name%.dll

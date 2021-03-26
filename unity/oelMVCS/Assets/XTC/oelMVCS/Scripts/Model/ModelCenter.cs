@@ -42,9 +42,9 @@ namespace XTC.oelMVCS
 
         public Model.Inner FindModel(string _uuid)
         {
-            if (models.ContainsKey(_uuid))
-                return models[_uuid];
-            return null;
+            Model.Inner inner = null;
+            models.TryGetValue(_uuid, out inner);
+            return inner;
         }
 
         public void Setup()
@@ -61,6 +61,33 @@ namespace XTC.oelMVCS
             {
                 inner.Dismantle();
             }
+        }
+
+        public Error PushStatus(string _uuid, Model.Status _status)
+        {
+            board_.logger.Info("push status {0}", _uuid);
+
+            if (status.ContainsKey(_uuid))
+                return Error.NewAccessErr("status {0} exists", _uuid);
+            status[_uuid] = _status;
+            return Error.OK;
+        }
+
+        public Error PopStatus(string _uuid)
+        {
+            board_.logger.Info("pop status {0}", _uuid);
+
+            if (!status.ContainsKey(_uuid))
+                return Error.NewAccessErr("status {0} not found", _uuid);
+            status.Remove(_uuid);
+            return Error.OK;
+        }
+
+        public Model.Status FindStatus(string _uuid)
+        {
+            Model.Status s = null;
+            status.TryGetValue(_uuid, out s);
+            return s;
         }
 
         public void Broadcast(string _action, Model.Status _status, object _data)

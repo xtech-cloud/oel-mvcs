@@ -37,9 +37,9 @@ namespace XTC.oelMVCS
 
         public Controller.Inner FindController(string _uuid)
         {
-            if (controllers.ContainsKey(_uuid))
-                return controllers[_uuid];
-            return null;
+            Controller.Inner inner = null;
+            controllers.TryGetValue(_uuid, out inner);
+            return inner;
         }
 
         public void Setup()

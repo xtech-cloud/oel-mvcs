@@ -5,7 +5,9 @@ using UnityEngine;
 
 namespace XTC.oelMVCS
 {
-
+    /// <summary>
+    /// 视图层
+    /// </summary>
     public class View
     {
         #region
@@ -74,6 +76,11 @@ namespace XTC.oelMVCS
         private Dictionary<string, Action<Model.Status, object>> handlers = new Dictionary<string, Action<Model.Status, object>>();
 
 
+        /// <summary>
+        /// 查找一个数据层
+        /// </summary>
+        /// <param name="_uuid"> 数据层唯一识别码</param>
+        /// <returns>找到的数据层</returns>
         protected Model findModel(string _uuid)
         {
             Model.Inner inner = board_.modelCenter.FindModel(_uuid);
@@ -82,6 +89,11 @@ namespace XTC.oelMVCS
             return inner.model;
         }
 
+        /// <summary>
+        /// 查找一个服务层
+        /// </summary>
+        /// <param name="_uuid"> 服务层唯一识别码</param>
+        /// <returns>找到的服务层</returns>
         protected Service findService(string _uuid)
         {
             Service.Inner inner = board_.serviceCenter.FindService(_uuid);
@@ -90,7 +102,9 @@ namespace XTC.oelMVCS
             return inner.service;
         }
 
-        // 派生类需要实现的方法
+        /// <summary>
+        /// 控制层的安装
+        /// </summary>
         protected virtual void setup()
         {
 
@@ -108,12 +122,20 @@ namespace XTC.oelMVCS
 
         }
 
-        // 派生类需要实现的方法
+        /// <summary>
+        /// 控制层的拆卸
+        /// </summary>
         protected virtual void dismantle()
         {
 
         }
 
+        /// <summary>
+        /// 行为路由，使用指定函数处理指定行为
+        /// 设置了路由的行为，在数据层进行广播时，会自动调用相应的处理函数
+        /// </summary>
+        /// <param name="_action">需要处理的行为</param>
+        /// <param name="_action">行为对应的处理函数</param>
         protected void route(string _action, Action<Model.Status, object> _handler)
         {
             handlers[_action] = _handler;

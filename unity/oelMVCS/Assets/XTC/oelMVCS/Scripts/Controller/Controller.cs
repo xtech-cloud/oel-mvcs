@@ -1,5 +1,8 @@
 ﻿namespace XTC.oelMVCS
 {
+    /// <summary>
+    /// 控制层
+    /// </summary>
     public class Controller
     {
         #region
@@ -54,6 +57,11 @@
             set;
         }
 
+        /// <summary>
+        /// 查找一个数据层
+        /// </summary>
+        /// <param name="_uuid"> 数据层唯一识别码</param>
+        /// <returns>找到的数据层</returns>
         protected Model findModel(string _uuid)
         {
             Model.Inner inner = board_.modelCenter.FindModel(_uuid);
@@ -62,6 +70,11 @@
             return inner.model;
         }
 
+        /// <summary>
+        /// 查找一个视图层
+        /// </summary>
+        /// <param name="_uuid"> 视图层唯一识别码</param>
+        /// <returns>找到的视图层</returns>
         protected View findView(string _uuid)
         {
             View.Inner inner = board_.viewCenter.FindView(_uuid);
@@ -70,6 +83,11 @@
             return inner.view;
         }
 
+        /// <summary>
+        /// 查找一个控制层
+        /// </summary>
+        /// <param name="_uuid"> 控制层唯一识别码</param>
+        /// <returns>找到的控制层</returns>
         protected Controller findController(string _uuid)
         {
             Controller.Inner inner = board_.controllerCenter.FindController(_uuid);
@@ -78,6 +96,11 @@
             return inner.controller;
         }
 
+        /// <summary>
+        /// 查找一个服务层
+        /// </summary>
+        /// <param name="_uuid"> 服务层唯一识别码</param>
+        /// <returns>找到的服务层</returns>
         protected Service findService(string _uuid)
         {
             Service.Inner inner = board_.serviceCenter.FindService(_uuid);
@@ -86,13 +109,17 @@
             return inner.service;
         }
 
-        // 派生类需要实现的方法
+        /// <summary>
+        /// 控制层的安装
+        /// </summary>
         protected virtual void setup()
         {
 
         }
 
-        // 派生类需要实现的方法
+        /// <summary>
+        /// 控制层的拆卸
+        /// </summary>
         protected virtual void dismantle()
         {
 

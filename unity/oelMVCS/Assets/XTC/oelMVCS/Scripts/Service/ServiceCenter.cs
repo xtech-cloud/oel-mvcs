@@ -45,9 +45,9 @@ namespace XTC.oelMVCS
 
         public Service.Inner FindService(string _uuid)
         {
-            if (services.ContainsKey(_uuid))
-                return services[_uuid];
-            return null;
+            Service.Inner inner = null;
+            services.TryGetValue(_uuid, out inner);
+            return inner;
         }
 
         public void Setup()

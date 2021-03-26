@@ -61,6 +61,9 @@ namespace XTC.oelMVCS
             dynamicPipe = null;
         }
 
+        /// <summary>
+        /// 框架初始化，完成各层中心的实例化
+        /// </summary>
         public void Initialize()
         {
             board_.logger.Info("initialize framework");
@@ -70,6 +73,10 @@ namespace XTC.oelMVCS
             board_.serviceCenter = new ServiceCenter(board_);
         }
 
+        /// <summary>
+        /// 框架安装，完成各层中心已注册组件的安装
+        /// 此过程将调用各派生组件的setup方法
+        /// </summary>
         public void Setup()
         {
             board_.logger.Info("setup framework");
@@ -79,6 +86,10 @@ namespace XTC.oelMVCS
             board_.controllerCenter.Setup();
         }
 
+        /// <summary>
+        /// 框架拆卸，完成各层中心已注册组件的拆卸
+        /// 此过程将调用各派生组件的dismantle方法
+        /// </summary>
         public void Dismantle()
         {
             board_.logger.Info("dismantle framework");
@@ -89,6 +100,9 @@ namespace XTC.oelMVCS
         }
 
 
+        /// <summary>
+        /// 框架销毁，完成各层中心的释放
+        /// </summary>
         public void Release()
         {
             board_.logger.Info("release framework");

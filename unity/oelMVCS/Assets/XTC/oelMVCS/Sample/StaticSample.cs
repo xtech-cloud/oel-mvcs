@@ -30,7 +30,6 @@ public class StaticSample: MonoBehaviour
         SampleController controller = new SampleController();
         SampleService service = new SampleService();
 
-        service.domain = "http://127.0.0.1";
         service.MockProcessor = this.mockProcessor;
         service.useMock = true;
 
@@ -81,10 +80,10 @@ public class StaticSample: MonoBehaviour
             if (_params["username"].AsString.Equals("admin") && _params["password"].AsString.Equals("admin"))
                 _onReply("ok");
             else
-                _onError("errcode:1");
+                _onError(Error.NewAccessErr(""));
             yield break;
         }
 
-        _onError("");
+        _onError(Error.NewAccessErr(""));
     }
 }
