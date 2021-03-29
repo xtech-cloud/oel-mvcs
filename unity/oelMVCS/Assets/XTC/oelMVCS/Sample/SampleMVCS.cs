@@ -19,14 +19,8 @@ public class SampleModel : Model
     {
         Debug.Log("setup SampleModel");
         Error err;
-        status_ = this.spawnStatus<SampleStatus>("simple", (_board, _uuid) =>
-        {
-            return new SampleStatus(_board, _uuid);
-        }, out err);
-        Model.Status test = this.spawnStatus<SampleStatus>("test", (_board, _uuid) =>
-        {
-            return new SampleStatus(_board, _uuid);
-        }, out err);
+        status_ = this.spawnStatus<SampleStatus>("simple", out err);
+        Model.Status test = this.spawnStatus<SampleStatus>("test", out err);
     }
 
     protected override void dismantle()
@@ -163,6 +157,10 @@ public class SampleController : Controller
 
     public void UpdateLoginResult(SampleModel.SampleStatus _status)
     {
+        // 使用状态访问已注册的其他状态
+        SampleModel.SampleStatus testStatus =  _status.Access("test") as SampleModel.SampleStatus;
+        Debug.Log(testStatus.uuid);
+
         if (null == _status.latestError)
         {
             view.SwitchHomePage();

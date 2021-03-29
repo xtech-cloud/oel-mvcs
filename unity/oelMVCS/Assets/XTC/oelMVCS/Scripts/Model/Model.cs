@@ -41,6 +41,18 @@ namespace XTC.oelMVCS
         /// <summary> 状态 </summary>
         public class Status
         {
+            // 内部工厂，用于赋值私有成员
+            public class Factory
+            {
+                public T New<T>(Board _board, string _uuid) where T:Status, new()
+                {
+                    T status = new T();
+                    status.board_ = _board;
+                    status.uuid = _uuid;
+                    return status;
+                }
+            }
+
             /// 错误码
             public int code;
             /// 错误信息
@@ -59,12 +71,6 @@ namespace XTC.oelMVCS
                 private set;
             }
 
-            public Status(Board _board, string _uuid)
-            {
-                board_ = _board;
-                uuid = _uuid;
-            }
-
             public Status()
             {
             }
@@ -73,11 +79,12 @@ namespace XTC.oelMVCS
             /// <param name="_uuid"> 状态的唯一识别码 </param>
             public Status Access(string _uuid)
             {
-                if(string.IsNullOrEmpty(_uuid))
+                if (string.IsNullOrEmpty(_uuid))
                     return null;
                 return board_.modelCenter.FindStatus(_uuid);
             }
         }
+
 
 
         /*
@@ -157,11 +164,12 @@ namespace XTC.oelMVCS
         /// <param name="_uuid">状态唯一识别码</param>
         /// <param name="_err">错误</param>
         /// <returns>状态<returns>
-        protected Model.Status spawnStatus<T>(string _uuid, System.Action<Board, string> _constructor, out Error _err) where T:Model.Status, new()
+        protected Model.Status spawnStatus<T>(string _uuid, out Error _err) where T: Model.Status, new ()
         {
-            Status status = _constructor(board_, _uuid);
+            Model.Status.Factory factory = new Model.Status.Factory();
+            Status status = factory.New<T>(board_, _uuid);
             _err = board_.modelCenter.PushStatus(_uuid, status);
-            if(_err.IsOK)
+            if (_err.IsOK)
                 return status;
             return null;
         }
