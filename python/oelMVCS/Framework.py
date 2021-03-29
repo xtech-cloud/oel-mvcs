@@ -1,49 +1,61 @@
-# -*- coding: utf-8 -*-
+﻿class Framework:
+    def __init__(self):
+        self.__board: Board = Board()
+        self.__staticPipe : StaticPipc = StaticPipe(self.__board)
+        self.__dynamicPipe : DynamicPipc = DynamicPipe(self.__board)
 
-from .ModelCenter import ModelCenter, StatusCenter
-from .ViewCenter import ViewCenter
-from .ControllerCenter import ControllerCenter
-from .ServiceCenter import ServiceCenter
+    def getStaticPipe(self):
+        return self.staticPipe_
 
-class Framework:
+    def getDynamicPipe(self):
+        return self.dynamicPipe_
 
-    def __init__(self, _config, _logger):
-        self.config = _config
-        self.logger = _logger
+    def setConfig(self, _config : Config):
+        self.__board.setConfig(_config);
 
-    # 实例化各层中心
-    def Initialize(self):
-        self.logger.Info('Initialize PyMVCS')
-        self.viewCenter = ViewCenter(self)
-        self.controllerCenter = ControllerCenter(self)
-        self.statusCenter = StatusCenter(self)
-        self.modelCenter = ModelCenter(self)
-        self.serviceCenter = ServiceCenter(self)
+    def setLogger(self, _logger: Logger):
+        self.__board.setLogger(_logger);
 
-    # 装载部件
-    # 调用所有部件的setup方法
+
+    def void Initialize(self):
+        '''
+        框架初始化，完成各层中心的实例化
+        '''
+        board_.logger.Info("initialize framework");
+        board_.viewCenter = new ViewCenter(board_);
+        board_.modelCenter = new ModelCenter(board_);
+        board_.controllerCenter = new ControllerCenter(board_);
+        board_.serviceCenter = new ServiceCenter(board_);
+
     def Setup(self):
-        self.logger.Info('Setup PyMVCS')
-        self.viewCenter.Setup()
-        self.controllerCenter.Setup()
-        self.modelCenter.Setup()
-        self.serviceCenter.Setup()
+        '''
+        框架安装，完成各层中心已注册组件的安装
+        此过程将调用各派生组件的setup方法
+        '''
+        board_.logger.Info("setup framework");
+        board_.viewCenter.Setup();
+        board_.serviceCenter.Setup();
+        board_.modelCenter.Setup();
+        board_.controllerCenter.Setup();
 
-    # 拆卸部件
-    # 调用所有部件的dismantle方法
     def Dismantle(self):
-        self.logger.Info('Dismantle PyMVCS')
-        self.serviceCenter.Dismantle()
-        self.modelCenter.Dismantle()
-        self.controllerCenter.Dismantle()
-        self.viewCenter.Dismantle()
+        '''
+        框架拆卸，完成各层中心已注册组件的拆卸
+        此过程将调用各派生组件的dismantle方法
+        '''
+        board_.logger.Info("dismantle framework");
+        board_.viewCenter.Dismantle();
+        board_.serviceCenter.Dismantle();
+        board_.modelCenter.Dismantle();
+        board_.controllerCenter.Dismantle();
 
-    # 销毁各层中心
+
     def Release(self):
-        self.logger.Info('Release PyMVCS')
-        self.serviceCenter = None
-        self.modelCenter = None
-        self.controllerCenter = None
-        self.viewCenter = None
-
-
+        '''
+        框架销毁，完成各层中心的释放
+        '''
+        board_.logger.Info("release framework");
+        board_.viewCenter = null;
+        board_.serviceCenter = null;
+        board_.modelCenter = null;
+        board_.controllerCenter = null;
