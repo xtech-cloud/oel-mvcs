@@ -38,7 +38,15 @@ namespace XTC.oelMVCS
         {
             foreach (Controller.Inner inner in units_.Values)
             {
-                inner.Setup(board_);
+                inner.PreSetup();
+            }
+            foreach (Controller.Inner inner in units_.Values)
+            {
+                inner.Setup();
+            }
+            foreach (Controller.Inner inner in units_.Values)
+            {
+                inner.PostSetup();
             }
         }
 
@@ -46,7 +54,15 @@ namespace XTC.oelMVCS
         {
             foreach (Controller.Inner inner in units_.Values)
             {
+                inner.PreDismantle();
+            }
+            foreach (Controller.Inner inner in units_.Values)
+            {
                 inner.Dismantle();
+            }
+            foreach (Controller.Inner inner in units_.Values)
+            {
+                inner.PostDismantle();
             }
         }
 

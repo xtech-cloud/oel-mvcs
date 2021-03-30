@@ -38,7 +38,15 @@ namespace XTC.oelMVCS
         {
             foreach (Model.Inner inner in units_.Values)
             {
-                inner.Setup(board_);
+                inner.PreSetup();
+            }
+            foreach (Model.Inner inner in units_.Values)
+            {
+                inner.Setup();
+            }
+            foreach (Model.Inner inner in units_.Values)
+            {
+                inner.PostSetup();
             }
         }
 
@@ -46,7 +54,15 @@ namespace XTC.oelMVCS
         {
             foreach (Model.Inner inner in units_.Values)
             {
+                inner.PreDismantle();
+            }
+            foreach (Model.Inner inner in units_.Values)
+            {
                 inner.Dismantle();
+            }
+            foreach (Model.Inner inner in units_.Values)
+            {
+                inner.PostDismantle();
             }
         }
 
@@ -72,9 +88,9 @@ namespace XTC.oelMVCS
 
         public Model.Status FindStatus(string _uuid)
         {
-            Model.Status s = null;
-            status_.TryGetValue(_uuid, out s);
-            return s;
+            Model.Status status = null;
+            status_.TryGetValue(_uuid, out status);
+            return status;
         }
 
         public void Broadcast(string _action, Model.Status _status, object _data)

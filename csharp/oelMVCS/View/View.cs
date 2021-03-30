@@ -12,9 +12,10 @@ namespace XTC.oelMVCS
         // 内部类，用于接口隔离,隐藏View无需暴露给外部的公有方法
         public class Inner
         {
-            public Inner(View _unit)
+            public Inner(View _unit, Board _board)
             {
                 unit_ = _unit;
+                unit_.board_ = _board;
             }
 
             public View getUnit()
@@ -22,17 +23,34 @@ namespace XTC.oelMVCS
                 return unit_;
             }
 
-            public void Setup(Board _board)
+            public void PreSetup()
             {
-                unit_.board_ = _board;
+                unit_.preSetup();
+            }
+
+            public void Setup()
+            {
                 unit_.setup();
-                unit_.bindEvents();
+            }
+
+            public void PostSetup()
+            {
+                unit_.postSetup();
+            }
+
+            public void PreDismantle()
+            {
+                unit_.preDismantle();
             }
 
             public void Dismantle()
             {
-                unit_.unbindEvents();
                 unit_.dismantle();
+            }
+
+            public void PostDismantle()
+            {
+                unit_.postDismantle();
             }
 
             public Error Handle(string _action, Model.Status _status, object _data)
@@ -44,6 +62,38 @@ namespace XTC.oelMVCS
             }
 
             private View unit_ = null;
+        }
+        #endregion
+
+        #region
+        /// <summary> UI装饰 </summary>
+        public class Facade
+        {
+            public interface Bridge
+            {
+            }
+
+            public void setViewBridge(Bridge _value)
+            {
+                viewBridge_ = _value;
+            }
+            public void setUiBridge(Bridge _value)
+            {
+                uiBridge_ = _value;
+            }
+
+            public Bridge getViewBridge()
+            {
+                return viewBridge_;
+            }
+
+            public Bridge getUiBridge()
+            {
+                return uiBridge_;
+            }
+
+            private Bridge viewBridge_;
+            private Bridge uiBridge_;
         }
         #endregion
 
@@ -64,6 +114,19 @@ namespace XTC.oelMVCS
         }
 
         /// <summary>
+        /// 查找一个视图层
+        /// </summary>
+        /// <param name="_uuid"> 视图层唯一识别码</param>
+        /// <returns>找到的视图层</returns>
+        protected View findView(string _uuid)
+        {
+            View.Inner inner = board_.getViewCenter().FindUnit(_uuid);
+            if (null == inner)
+                return null;
+            return inner.getUnit();
+        }
+
+        /// <summary>
         /// 查找一个服务层
         /// </summary>
         /// <param name="_uuid"> 服务层唯一识别码</param>
@@ -76,17 +139,16 @@ namespace XTC.oelMVCS
             return inner.getUnit();
         }
 
-        // 派生类需要实现的方法
-        protected virtual void bindEvents()
+        /// <summary>
+        /// 查找一个UI装饰
+        /// </summary>
+        /// <param name="_uuid"> UI装饰唯一识别码</param>
+        /// <returns>找到的UI装饰</returns>
+        protected View.Facade findFacade(string _uuid)
         {
-
+            return board_.getViewCenter().FindFacade(_uuid);
         }
 
-        // 派生类需要实现的方法
-        protected virtual void unbindEvents()
-        {
-
-        }
 
         /// <summary>
         /// 行为路由，使用指定函数处理指定行为
@@ -122,6 +184,14 @@ namespace XTC.oelMVCS
         }
 
         /// <summary>
+        /// 单元的安装前处理
+        /// </summary>
+        protected virtual void preSetup()
+        {
+
+        }
+
+        /// <summary>
         /// 单元的安装
         /// </summary>
         protected virtual void setup()
@@ -130,9 +200,33 @@ namespace XTC.oelMVCS
         }
 
         /// <summary>
+        /// 单元的安装后处理
+        /// </summary>
+        protected virtual void postSetup()
+        {
+
+        }
+
+        /// <summary>
+        /// 单元的拆卸前处理
+        /// </summary>
+        protected virtual void preDismantle()
+        {
+
+        }
+
+        /// <summary>
         /// 单元的拆卸
         /// </summary>
         protected virtual void dismantle()
+        {
+
+        }
+
+        /// <summary>
+        /// 单元的拆卸后处理
+        /// </summary>
+        protected virtual void postDismantle()
         {
 
         }

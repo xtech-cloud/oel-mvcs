@@ -11,9 +11,10 @@ namespace XTC.oelMVCS
         // 内部类，用于接口隔离,隐藏Model无需暴露给外部的公有方法
         public class Inner
         {
-            public Inner(Model _unit)
+            public Inner(Model _unit, Board _board)
             {
                 unit_ = _unit;
+                unit_.board_ = _board;
             }
 
             public Model getUnit()
@@ -21,15 +22,34 @@ namespace XTC.oelMVCS
                 return unit_;
             }
 
-            public void Setup(Board _board)
+            public void PreSetup()
             {
-                unit_.board_ = _board;
+                unit_.preSetup();
+            }
+
+            public void Setup()
+            {
                 unit_.setup();
+            }
+
+            public void PostSetup()
+            {
+                unit_.postSetup();
+            }
+
+            public void PreDismantle()
+            {
+                unit_.preDismantle();
             }
 
             public void Dismantle()
             {
                 unit_.dismantle();
+            }
+
+            public void PostDismantle()
+            {
+                unit_.postDismantle();
             }
 
             private Model unit_ = null;
@@ -72,6 +92,14 @@ namespace XTC.oelMVCS
 
             public Status()
             {
+            }
+
+            public static T New<T>(int _code, string _message) where T:Status, new ()
+            {
+                T status = new T();
+                status.code_ = _code;
+                status.message_ = _message;
+                return status;
             }
 
             /// <summary> 访问数据中心中的已注册状态 </summary>
@@ -186,6 +214,14 @@ namespace XTC.oelMVCS
         }
 
         /// <summary>
+        /// 单元的安装前处理
+        /// </summary>
+        protected virtual void preSetup()
+        {
+
+        }
+
+        /// <summary>
         /// 单元的安装
         /// </summary>
         protected virtual void setup()
@@ -194,9 +230,33 @@ namespace XTC.oelMVCS
         }
 
         /// <summary>
+        /// 单元的安装后处理
+        /// </summary>
+        protected virtual void postSetup()
+        {
+
+        }
+
+        /// <summary>
+        /// 单元的拆卸前处理
+        /// </summary>
+        protected virtual void preDismantle()
+        {
+
+        }
+
+        /// <summary>
         /// 单元的拆卸
         /// </summary>
         protected virtual void dismantle()
+        {
+
+        }
+
+        /// <summary>
+        /// 单元的拆卸后处理
+        /// </summary>
+        protected virtual void postDismantle()
         {
 
         }

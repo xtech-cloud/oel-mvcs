@@ -41,12 +41,46 @@ namespace XTC.oelMVCS
             units_.TryGetValue(_uuid, out inner);
             return inner;
         }
+        public Error PushFacade(string _uuid, View.Facade _facade)
+        {
+            board_.getLogger().Info("push facade {0}", _uuid);
+
+            if (facades_.ContainsKey(_uuid))
+                return Error.NewAccessErr("facade {0} exists", _uuid);
+            facades_[_uuid] = _facade;
+            return Error.OK;
+        }
+
+        public Error PopFacade(string _uuid)
+        {
+            board_.getLogger().Info("pop facade {0}", _uuid);
+
+            if (!facades_.ContainsKey(_uuid))
+                return Error.NewAccessErr("facade {0} not found", _uuid);
+            facades_.Remove(_uuid);
+            return Error.OK;
+        }
+
+        public View.Facade FindFacade(string _uuid)
+        {
+            View.Facade facade = null;
+            facades_.TryGetValue(_uuid, out facade);
+            return facade;
+        }
 
         public void Setup()
         {
             foreach (View.Inner inner in units_.Values)
             {
-                inner.Setup(board_);
+                inner.PreSetup();
+            }
+            foreach (View.Inner inner in units_.Values)
+            {
+                inner.Setup();
+            }
+            foreach (View.Inner inner in units_.Values)
+            {
+                inner.PostSetup();
             }
         }
 
@@ -54,11 +88,20 @@ namespace XTC.oelMVCS
         {
             foreach (View.Inner inner in units_.Values)
             {
+                inner.PreDismantle();
+            }
+            foreach (View.Inner inner in units_.Values)
+            {
                 inner.Dismantle();
+            }
+            foreach (View.Inner inner in units_.Values)
+            {
+                inner.PostDismantle();
             }
         }
 
         protected Dictionary<string, View.Inner> units_ = new Dictionary<string, View.Inner>();
+        private Dictionary<string, View.Facade> facades_ = new Dictionary<string, View.Facade>();
 
         private Board board_ = null;
     }

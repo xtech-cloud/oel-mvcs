@@ -11,9 +11,10 @@ namespace XTC.oelMVCS
         // 内部类，用于接口隔离,隐藏Service无需暴露给外部的公有方法
         public class Inner
         {
-            public Inner(Service _unit)
+            public Inner(Service _unit, Board _board)
             {
                 unit_ = _unit;
+                unit_.board_ = _board;
             }
 
             public Service getUnit()
@@ -21,15 +22,34 @@ namespace XTC.oelMVCS
                 return unit_;
             }
 
-            public void Setup(Board _board)
+            public void PreSetup()
             {
-                unit_.board_ = _board;
+                unit_.preSetup();
+            }
+
+            public void Setup()
+            {
                 unit_.setup();
+            }
+
+            public void PostSetup()
+            {
+                unit_.postSetup();
+            }
+
+            public void PreDismantle()
+            {
+                unit_.preDismantle();
             }
 
             public void Dismantle()
             {
                 unit_.dismantle();
+            }
+
+            public void PostDismantle()
+            {
+                unit_.postDismantle();
             }
 
             private Service unit_ = null;
@@ -261,6 +281,14 @@ namespace XTC.oelMVCS
         }
 
         /// <summary>
+        /// 单元的安装前处理
+        /// </summary>
+        protected virtual void preSetup()
+        {
+
+        }
+
+        /// <summary>
         /// 单元的安装
         /// </summary>
         protected virtual void setup()
@@ -269,9 +297,33 @@ namespace XTC.oelMVCS
         }
 
         /// <summary>
+        /// 单元的安装后处理
+        /// </summary>
+        protected virtual void postSetup()
+        {
+
+        }
+
+        /// <summary>
+        /// 单元的拆卸前处理
+        /// </summary>
+        protected virtual void preDismantle()
+        {
+
+        }
+
+        /// <summary>
         /// 单元的拆卸
         /// </summary>
         protected virtual void dismantle()
+        {
+
+        }
+
+        /// <summary>
+        /// 单元的拆卸后处理
+        /// </summary>
+        protected virtual void postDismantle()
         {
 
         }

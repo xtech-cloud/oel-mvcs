@@ -17,11 +17,11 @@ namespace XTC.oelMVCS
         /// <returns>错误</returns>
         public Error PushModel(string _uuid, Model _model)
         {
-            Model.Inner inner = new Model.Inner(_model);
+            Model.Inner inner = new Model.Inner(_model, board_);
             Error err = board_.getModelCenter().Register(_uuid, inner);
             if (!Error.IsOK(err))
                 return err;
-            inner.Setup(board_);
+            inner.Setup();
             return Error.OK;
         }
 
@@ -43,11 +43,11 @@ namespace XTC.oelMVCS
         /// <returns>错误</returns>
         public Error PushView(string _uuid, View _view)
         {
-            View.Inner inner = new View.Inner(_view);
+            View.Inner inner = new View.Inner(_view, board_);
             Error err = board_.getViewCenter().Register(_uuid, inner);
             if (!Error.IsOK(err))
                 return err;
-            inner.Setup(board_);
+            inner.Setup();
             return Error.OK;
         }
 
@@ -69,11 +69,11 @@ namespace XTC.oelMVCS
         /// <returns>错误</returns>
         public Error PushController(string _uuid, Controller _controller)
         {
-            Controller.Inner inner = new Controller.Inner(_controller);
+            Controller.Inner inner = new Controller.Inner(_controller, board_);
             Error err = board_.getControllerCenter().Register(_uuid, inner);
             if (!Error.IsOK(err))
                 return err;
-            inner.Setup(board_);
+            inner.Setup();
             return Error.OK;
         }
 
@@ -95,11 +95,11 @@ namespace XTC.oelMVCS
         /// <returns>错误</returns>
         public Error PushService(string _uuid, Service _service)
         {
-            Service.Inner inner = new Service.Inner(_service);
+            Service.Inner inner = new Service.Inner(_service, board_);
             Error err = board_.getServiceCenter().Register(_uuid, inner);
             if (!Error.IsOK(err))
                 return err;
-            inner.Setup(board_);
+            inner.Setup();
             return Error.OK;
         }
 
@@ -114,6 +114,24 @@ namespace XTC.oelMVCS
             inner.Dismantle();
             return board_.getServiceCenter().Cancel(_uuid);
         }
+
+        /// <summary>添加UI装饰</summary>
+        /// <param name="_uuid">UI装饰唯一识别码</param>
+        /// <param name="_model">UI装饰实例</param>
+        /// <returns>错误</returns>
+        public Error PushFacade(string _uuid, View.Facade _facade)
+        {
+            return board_.getViewCenter().PushFacade(_uuid, _facade);
+        }
+
+        /// <summary>删除UI装饰</summary>
+        /// <param name="_uuid">UI装饰层唯一识别码</param>
+        /// <returns>错误</returns>
+        public Error PopFacade(string _uuid)
+        {
+            return board_.getViewCenter().PopFacade(_uuid);
+        }
+
         private Board board_ = null;
 
     }
