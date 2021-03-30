@@ -13,52 +13,38 @@ namespace XTC.oelMVCS
 {
     public class Framework
     {
-        public StaticPipe staticPipe
+        public StaticPipe getStaticPipe()
         {
-            get;
-            private set;
+            return staticPipe_;
         }
 
-        public DynamicPipe dynamicPipe
+        public DynamicPipe getDynamicPipe()
         {
-            get;
-            private set;
+            return dynamicPipe_;
         }
 
-        public Config config
+        public void setConfig(Config _value)
         {
-            set
-            {
-                board_.config = value;
-            }
+            board_.setConfig(_value);
         }
 
-        public Logger logger
+        public void setLogger(Logger _value)
         {
-            set
-            {
-                board_.logger = value;
-            }
-        }
-
-        private Board board_
-        {
-            get;
-            set;
+            board_.setLogger(_value);
         }
 
         public Framework()
         {
             board_ = new Board();
-            staticPipe = new StaticPipe(board_);
-            dynamicPipe = new DynamicPipe(board_);
+            staticPipe_ = new StaticPipe(board_);
+            dynamicPipe_ = new DynamicPipe(board_);
         }
 
         ~Framework()
         {
             board_ = null;
-            staticPipe = null;
-            dynamicPipe = null;
+            staticPipe_ = null;
+            dynamicPipe_ = null;
         }
 
         /// <summary>
@@ -66,11 +52,11 @@ namespace XTC.oelMVCS
         /// </summary>
         public void Initialize()
         {
-            board_.logger.Info("initialize framework");
-            board_.viewCenter = new ViewCenter(board_);
-            board_.modelCenter = new ModelCenter(board_);
-            board_.controllerCenter = new ControllerCenter(board_);
-            board_.serviceCenter = new ServiceCenter(board_);
+            board_.getLogger().Info("initialize framework");
+            board_.setViewCenter(new ViewCenter(board_));
+            board_.setModelCenter(new ModelCenter(board_));
+            board_.setControllerCenter(new ControllerCenter(board_));
+            board_.setServiceCenter(new ServiceCenter(board_));
         }
 
         /// <summary>
@@ -79,11 +65,11 @@ namespace XTC.oelMVCS
         /// </summary>
         public void Setup()
         {
-            board_.logger.Info("setup framework");
-            board_.viewCenter.Setup();
-            board_.serviceCenter.Setup();
-            board_.modelCenter.Setup();
-            board_.controllerCenter.Setup();
+            board_.getLogger().Info("setup framework");
+            board_.getViewCenter().Setup();
+            board_.getServiceCenter().Setup();
+            board_.getModelCenter().Setup();
+            board_.getControllerCenter().Setup();
         }
 
         /// <summary>
@@ -92,11 +78,11 @@ namespace XTC.oelMVCS
         /// </summary>
         public void Dismantle()
         {
-            board_.logger.Info("dismantle framework");
-            board_.viewCenter.Dismantle();
-            board_.serviceCenter.Dismantle();
-            board_.modelCenter.Dismantle();
-            board_.controllerCenter.Dismantle();
+            board_.getLogger().Info("dismantle framework");
+            board_.getViewCenter().Dismantle();
+            board_.getServiceCenter().Dismantle();
+            board_.getModelCenter().Dismantle();
+            board_.getControllerCenter().Dismantle();
         }
 
 
@@ -105,12 +91,18 @@ namespace XTC.oelMVCS
         /// </summary>
         public void Release()
         {
-            board_.logger.Info("release framework");
-            board_.viewCenter = null;
-            board_.serviceCenter = null;
-            board_.modelCenter = null;
-            board_.controllerCenter = null;
+            board_.getLogger().Info("release framework");
+            board_.setViewCenter(null);
+            board_.setServiceCenter(null);
+            board_.setModelCenter(null);
+            board_.setControllerCenter(null);
         }
+
+        private StaticPipe staticPipe_ = null;
+        private DynamicPipe dynamicPipe_ = null;
+        public Config config_ = null;
+        public Logger logger_ = null;
+        private Board board_ = null;
     }
 
 }//namespace

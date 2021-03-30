@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
+
 class DynamicPipe:
-    '''
-    动态管线
-    '''
+    """ 动态管线 """
+
     def __init__(self, _board:Board):
         self.__board = _board
 
-    def PushModel(self, _uuid:str, _model:Model) -> Error:
-        """ 添加数据层
+    def PushModel(self, _uuid :str, _model:Model) -> Error:
+        """添加数据层
         Args:
             _uuid: 数据层唯一识别码
             _model: 数据层实列
@@ -62,7 +62,7 @@ class DynamicPipe:
             return Error.NewAccessErr("view {} not found", _uuid)
         inner.Dismantle()
         return self.__board.getViewCenter().Cancel(_uuid)
-    
+
     def PushController(self, _uuid:str, _controller:Controller) -> Error:
         """ 添加控制层
         Args:

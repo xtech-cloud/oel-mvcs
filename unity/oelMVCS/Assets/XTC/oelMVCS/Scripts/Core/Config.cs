@@ -4,7 +4,7 @@ namespace XTC.oelMVCS
 {
     public class Config
     {
-        private Dictionary<string, Any> fields = new Dictionary<string, Any>();
+        protected Dictionary<string, Any> fields_ = new Dictionary<string, Any>();
 
         public void Merge(string _content)
         {
@@ -13,7 +13,7 @@ namespace XTC.oelMVCS
 
         public bool Has(string _field)
         {
-            return fields.ContainsKey(_field);
+            return fields_.ContainsKey(_field);
         }
 
         public Any this [string _aKey]
@@ -21,7 +21,7 @@ namespace XTC.oelMVCS
             get
             {
                 Any field;
-                if (fields.TryGetValue(_aKey, out field))
+                if (fields_.TryGetValue(_aKey, out field))
                     return field;
                 return new Any();
             }

@@ -3,19 +3,22 @@ namespace XTC.oelMVCS
 {
     public enum LogLevel
     {
-        ALL,
-        TRACE,
-        DEBUG,
-        INFO,
-        WARNING,
-        ERROR,
+        NONE,
         EXCEPTION,
-        NONE
+        ERROR,
+        WARNING,
+        INFO,
+        DEBUG,
+        TRACE,
+        ALL,
     }
 
     public class Logger
     {
-        public LogLevel level = LogLevel.ALL;
+        public void setLevel(LogLevel _level)
+        {
+            level_ = _level;
+        }
 
         public void Trace(string _message, params object[] _args)
         {
@@ -44,7 +47,7 @@ namespace XTC.oelMVCS
 
         public void Exception(System.Exception _ex)
         {
-            if (level > LogLevel.EXCEPTION)
+            if (level_ < LogLevel.EXCEPTION)
                 return;
             this.exception(_ex);
         }
@@ -75,7 +78,7 @@ namespace XTC.oelMVCS
 
         private void log(LogLevel _level,  System.Action<string, string> _log, string _message, params object[] _args)
         {
-            if (level > _level)
+            if (level_ < _level)
                 return;
 
             string message = "";
@@ -104,5 +107,7 @@ namespace XTC.oelMVCS
             }
             return method;
         }
+
+        private LogLevel level_ = LogLevel.ALL;
     }
 }

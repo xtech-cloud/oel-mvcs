@@ -21,22 +21,23 @@ public class StaticSample: MonoBehaviour
         foreach(UIFacade facade in uIFacades)
             facade.Register();
 
-        framework.logger = logger;
-        framework.config = new Config();
+        framework.setLogger(logger);
+        framework.setConfig(new Config());
         framework.Initialize();
 
         SampleModel model = new SampleModel();
         SampleView view = new SampleView();
         SampleController controller = new SampleController();
         SampleService service = new SampleService();
+        service.mono = this;
 
-        service.MockProcessor = this.mockProcessor;
+        service.MockProcessor = service.mockProcessor;
         service.useMock = true;
 
-        framework.staticPipe.RegisterModel(SampleModel.NAME, model);
-        framework.staticPipe.RegisterView(SampleView.NAME, view);
-        framework.staticPipe.RegisterController(SampleController.NAME, controller);
-        framework.staticPipe.RegisterService(SampleService.NAME, service);
+        framework.getStaticPipe().RegisterModel(SampleModel.NAME, model);
+        framework.getStaticPipe().RegisterView(SampleView.NAME, view);
+        framework.getStaticPipe().RegisterController(SampleController.NAME, controller);
+        framework.getStaticPipe().RegisterService(SampleService.NAME, service);
     }
 
     void OnEnable()
@@ -55,10 +56,10 @@ public class StaticSample: MonoBehaviour
     {
         Debug.Log("---------------  OnDestroy ------------------------");
 
-        framework.staticPipe.CancelModel(SampleModel.NAME);
-        framework.staticPipe.CancelView(SampleView.NAME);
-        framework.staticPipe.CancelController(SampleController.NAME);
-        framework.staticPipe.CancelService(SampleService.NAME);
+        framework.getStaticPipe().CancelModel(SampleModel.NAME);
+        framework.getStaticPipe().CancelView(SampleView.NAME);
+        framework.getStaticPipe().CancelController(SampleController.NAME);
+        framework.getStaticPipe().CancelService(SampleService.NAME);
 
         foreach(UIFacade facade in uIFacades)
             facade.Cancel();
@@ -66,24 +67,4 @@ public class StaticSample: MonoBehaviour
         framework.Release();
     }
 
-    void mockProcessor(string _url, string _method, Dictionary<string, Any> _params, Service.OnReplyCallback _onReply, Service.OnErrorCallback _onError, Service.Options _options)
-    {
-        this.StartCoroutine(asyncMockProcessor(_url, _method, _params, _onReply, _onError, _options));
-    }
-
-    IEnumerator asyncMockProcessor(string _url, string _method, Dictionary<string, Any> _params, Service.OnReplyCallback _onReply, Service.OnErrorCallback _onError, Service.Options _options)
-    {
-        yield return new WaitForEndOfFrame();
-
-        if (_url.EndsWith("/login"))
-        {
-            if (_params["username"].AsString.Equals("admin") && _params["password"].AsString.Equals("admin"))
-                _onReply("ok");
-            else
-                _onError(Error.NewAccessErr(""));
-            yield break;
-        }
-
-        _onError(Error.NewAccessErr(""));
-    }
 }

@@ -12,45 +12,32 @@ namespace XTC.oelMVCS
         public const int ACCESS = -3;
         public const int EXCEPTION = -99;
 
-        public int code
+        public int getCode()
         {
-            get;
-            private set;
+            return code_;
         }
 
-        public string message
+        public string getMessage()
         {
-            get;
-            private set;
+            return message_;
         }
 
-        private static Error ok_ = new Error(0, "");
+        public static readonly Error OK = new Error(0, "");
 
         public Error(int _code, string _message)
         {
-            code = _code;
-            message = _message;
+            code_ = _code;
+            message_ = _message;
         }
 
         public override string ToString()
         {
-            return string.Format("{0}:{1}", code, message);
+            return string.Format("{0}:{1}", code_, message_);
         }
 
-        public static Error OK
+        public static bool IsOK(Error _err)
         {
-            get
-            {
-                return ok_;
-            }
-        }
-
-        public bool IsOK
-        {
-            get
-            {
-                return code == 0;
-            }
+            return _err.getCode() == 0;
         }
 
         public static Error NewNullErr(string _message, params object[] _args)
@@ -75,5 +62,8 @@ namespace XTC.oelMVCS
         {
             return new Error(EXCEPTION, _ex.Message);
         }
+
+        protected int code_ = 0;
+        protected string message_ = "";
     }//class
 }//namespace

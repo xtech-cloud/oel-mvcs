@@ -8,72 +8,48 @@ namespace XTC.oelMVCS
     /// <summary>
     /// 视图层
     /// </summary>
-    public class View
+    public class View 
     {
         #region
         // 内部类，用于接口隔离,隐藏View无需暴露给外部的公有方法
-        public class Inner
+        public class Inner 
         {
-            public View view
+            public Inner(View _unit)
             {
-                get;
-                private set;
+                unit_ = _unit;
             }
 
-
-            public Inner(View _view)
+            public View getUnit()
             {
-                view = _view;
+                return unit_;
             }
 
             public void Setup(Board _board)
             {
-                view.board_ = _board;
-                view.board_.logger.Trace("setup view");
-                view.setup();
-                view.bindEvents();
+                unit_.board_ = _board;
+                unit_.setup();
+                unit_.bindEvents();
             }
 
             public void Dismantle()
             {
-                view.board_.logger.Trace("dismantle view");
-                view.unbindEvents();
-                view.dismantle();
+                unit_.unbindEvents();
+                unit_.dismantle();
             }
 
             public Error Handle(string _action, Model.Status _status, object _data)
             {
-                if (!view.handlers.ContainsKey(_action))
+                if (!unit_.handlers_.ContainsKey(_action))
                     return Error.NewParamErr("handler {0} exists", _action);
-                view.handlers[_action](_status, _data);
+                unit_.handlers_[_action](_status, _data);
                 return Error.OK;
             }
+
+            private View unit_ = null;
         }
         #endregion
 
-        protected Logger logger_
-        {
-            get
-            {
-                return board_.logger;
-            }
-        }
-
-        protected Config config_
-        {
-            get
-            {
-                return board_.config;
-            }
-        }
-
-        private Board board_
-        {
-            get;
-            set;
-        }
-
-        private Dictionary<string, Action<Model.Status, object>> handlers = new Dictionary<string, Action<Model.Status, object>>();
+        private Dictionary<string, Action<Model.Status, object>> handlers_ = new Dictionary<string, Action<Model.Status, object>>();
 
 
         /// <summary>
@@ -83,10 +59,10 @@ namespace XTC.oelMVCS
         /// <returns>找到的数据层</returns>
         protected Model findModel(string _uuid)
         {
-            Model.Inner inner = board_.modelCenter.FindModel(_uuid);
+            Model.Inner inner = board_.getModelCenter().FindUnit(_uuid);
             if (null == inner)
                 return null;
-            return inner.model;
+            return inner.getUnit();
         }
 
         /// <summary>
@@ -96,18 +72,10 @@ namespace XTC.oelMVCS
         /// <returns>找到的服务层</returns>
         protected Service findService(string _uuid)
         {
-            Service.Inner inner = board_.serviceCenter.FindService(_uuid);
+            Service.Inner inner = board_.getServiceCenter().FindUnit(_uuid);
             if (null == inner)
                 return null;
-            return inner.service;
-        }
-
-        /// <summary>
-        /// 控制层的安装
-        /// </summary>
-        protected virtual void setup()
-        {
-
+            return inner.getUnit();
         }
 
         // 派生类需要实现的方法
@@ -123,14 +91,6 @@ namespace XTC.oelMVCS
         }
 
         /// <summary>
-        /// 控制层的拆卸
-        /// </summary>
-        protected virtual void dismantle()
-        {
-
-        }
-
-        /// <summary>
         /// 行为路由，使用指定函数处理指定行为
         /// 设置了路由的行为，在数据层进行广播时，会自动调用相应的处理函数
         /// </summary>
@@ -138,7 +98,47 @@ namespace XTC.oelMVCS
         /// <param name="_action">行为对应的处理函数</param>
         protected void route(string _action, Action<Model.Status, object> _handler)
         {
-            handlers[_action] = _handler;
+            handlers_[_action] = _handler;
         }
+
+        /// <summary>
+        /// 获取日志
+        /// </summary>
+        /// <returns>
+        /// 日志实列
+        /// </returns>
+        protected Logger getLogger()
+        {
+            return board_.getLogger();
+        }
+
+        /// <summary>
+        /// 获取配置
+        /// </summary>
+        /// <returns>
+        /// 配置实列
+        /// </returns>
+        protected Config getConfig()
+        {
+            return board_.getConfig();
+        }
+
+        /// <summary>
+        /// 单元的安装
+        /// </summary>
+        protected virtual void setup()
+        {
+
+        }
+
+        /// <summary>
+        /// 单元的拆卸
+        /// </summary>
+        protected virtual void dismantle()
+        {
+
+        }
+
+        private Board board_ = null;
     }
 }//namespace

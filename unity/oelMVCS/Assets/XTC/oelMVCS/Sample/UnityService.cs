@@ -10,7 +10,7 @@ namespace XTC.oelMVCS
     {
         public MonoBehaviour mono;
 
-        protected virtual void asyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        protected override void asyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {
             mono.StartCoroutine(request(_url, _method, _params, _onReply, _onError, _options));
         }
@@ -18,7 +18,7 @@ namespace XTC.oelMVCS
         protected virtual IEnumerator request(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {
             string url = _url;
-            logger_.Debug("request: {0}", url);
+            getLogger().Debug("request: {0}", url);
             var request = new UnityWebRequest(url, _method);
 
             if (null == jsonPack)

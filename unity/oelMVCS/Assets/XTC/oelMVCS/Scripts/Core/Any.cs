@@ -21,185 +21,133 @@ namespace XTC.oelMVCS
         {
         }
 
-        public Any(string _value)
+        public static Any FromString(string _value)
         {
-            AsString = _value;
+            Any any = new Any();
+            any.tag_ = Tag.StringValue;
+            any.value_ = _value;
+            return any;
         }
 
-        public Any(float _value)
+        public static Any FromFloat(float _value)
         {
-            AsFloat = _value;
+            Any any = new Any();
+            any.tag_ = Tag.FloatValue;
+            any.value_ = _value.ToString();
+            return any;
         }
 
-        public Any(double _value)
+        public static Any FromDouble(double _value)
         {
-            AsDouble = _value;
+            Any any = new Any();
+            any.tag_ = Tag.DoubleValue;
+            any.value_ = _value.ToString();
+            return any;
         }
 
-        public Any(bool _value)
+        public static Any FromBool(bool _value)
         {
-            AsBool = _value;
+            Any any = new Any();
+            any.tag_ = Tag.BoolValue;
+            any.value_ = _value.ToString();
+            return any;
         }
 
-        public Any(int _value)
+        public static Any FromInt(int _value)
         {
-            AsInt = _value;
+            Any any = new Any();
+            any.tag_ = Tag.IntValue;
+            any.value_ = _value.ToString();
+            return any;
         }
 
-        public Any(long _value)
+        public static Any FromLong(long _value)
         {
-            AsLong = _value;
+            Any any = new Any();
+            any.tag_ = Tag.LongValue;
+            any.value_ = _value.ToString();
+            return any;
         }
 
-        public bool IsNull
+        public bool IsNull()
         {
-            get
-            {
-                return tag_ == Tag.NULL;
-            }
+            return tag_ == Tag.NULL;
         }
 
-        public bool IsString
+        public bool IsString()
         {
-            get
-            {
-                return tag_ == Tag.StringValue;
-            }
+            return tag_ == Tag.StringValue;
         }
 
-        public bool IsInt
+        public bool IsInt()
         {
-            get
-            {
-                return tag_ == Tag.IntValue;
-            }
+            return tag_ == Tag.IntValue;
         }
 
-        public bool IsLong
+        public bool IsLong()
         {
-            get
-            {
-                return tag_ == Tag.LongValue;
-            }
+            return tag_ == Tag.LongValue;
         }
 
-        public bool IsFloat
+        public bool IsFloat()
         {
-            get
-            {
-                return tag_ == Tag.FloatValue;
-            }
+            return tag_ == Tag.FloatValue;
         }
 
-        public bool IsDouble
+        public bool IsDouble()
         {
-            get
-            {
-                return tag_ == Tag.DoubleValue;
-            }
+            return tag_ == Tag.DoubleValue;
         }
 
-        public bool IsBool
+        public bool IsBool()
         {
-            get
-            {
-                return tag_ == Tag.BoolValue;
-            }
+            return tag_ == Tag.BoolValue;
         }
 
-        public string AsString
+        public string AsString()
         {
-            get
-            {
-                return value_;
-            }
-            private set
-            {
-                value_ = value;
-                tag_ = Tag.StringValue;
-            }
+            return value_;
         }
 
 
-        public int AsInt
+        public int AsInt()
         {
-            get
-            {
-                int v = 0;
-                if (int.TryParse(value_, out v))
-                    return v;
-                return 0;
-            }
-            private set
-            {
-                value_ = value.ToString();
-                tag_ = Tag.IntValue;
-            }
+            int v = 0;
+            if (int.TryParse(value_, out v))
+                return v;
+            return 0;
         }
 
-        public long AsLong
+        public long AsLong()
         {
-            get
-            {
-                long v = 0;
-                if (long.TryParse(value_, out v))
-                    return v;
-                return 0;
-            }
-            private set
-            {
-                value_ = value.ToString();
-                tag_ = Tag.LongValue;
-            }
+            long v = 0;
+            if (long.TryParse(value_, out v))
+                return v;
+            return 0;
         }
 
-        public float AsFloat
+        public float AsFloat()
         {
-            get
-            {
-                float v = 0.0f;
-                if (float.TryParse(value_, out v))
-                    return v;
-                return 0.0f;
-            }
-            private set
-            {
-                value_ = value.ToString();
-                tag_ = Tag.FloatValue;
-            }
+            float v = 0.0f;
+            if (float.TryParse(value_, out v))
+                return v;
+            return 0.0f;
         }
 
-        public double AsDouble
+        public double AsDouble()
         {
-            get
-            {
-                double v = 0.0;
-                if (double.TryParse(value_, out v))
-                    return v;
-                return 0.0;
-            }
-            private set
-            {
-                value_ = value.ToString();
-                tag_ = Tag.DoubleValue;
-
-            }
+            double v = 0.0;
+            if (double.TryParse(value_, out v))
+                return v;
+            return 0.0;
         }
 
-        public bool AsBool
+        public bool AsBool()
         {
-            get
-            {
-                bool v = false;
-                if (bool.TryParse(value_, out v))
-                    return v;
-                return !string.IsNullOrEmpty(value_);
-            }
-            private set
-            {
-                value_ = (value) ? "true" : "false";
-                tag_ = Tag.BoolValue;
-            }
+            bool v = false;
+            if (bool.TryParse(value_, out v))
+                return v;
+            return !string.IsNullOrEmpty(value_);
         }
     }//class
 }//namespace

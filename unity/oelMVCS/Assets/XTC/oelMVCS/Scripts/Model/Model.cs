@@ -4,71 +4,71 @@ namespace XTC.oelMVCS
 {
 
     /// <summary>
-    /// 数据层
+    /// 数据单元
     /// </summary>
-    public class Model
+    public class Model 
     {
         #region
         // 内部类，用于接口隔离,隐藏Model无需暴露给外部的公有方法
         public class Inner
         {
-            public Model model
+            public Inner(Model _unit)
             {
-                get;
-                private set;
+                unit_ = _unit;
             }
 
-            public Inner(Model _model)
+            public Model getUnit()
             {
-                model = _model;
+                return unit_;
             }
 
-            internal void Setup(Board _board)
+            public void Setup(Board _board)
             {
-                model.board_ = _board;
-                model.board_.logger.Trace("setup model");
-                model.setup();
+                unit_.board_ = _board;
+                unit_.setup();
             }
 
-            internal void Dismantle()
+            public void Dismantle()
             {
-                model.board_.logger.Trace("dismantle model");
-                model.dismantle();
+                unit_.dismantle();
             }
+
+            private Model unit_ = null;
         }
         #endregion
 
+        #region
         /// <summary> 状态 </summary>
         public class Status
         {
             // 内部工厂，用于赋值私有成员
             public class Factory
             {
-                public T New<T>(Board _board, string _uuid) where T:Status, new()
+                public T New<T>(Board _board, string _uuid) where T: Status, new ()
                 {
                     T status = new T();
                     status.board_ = _board;
-                    status.uuid = _uuid;
+                    status.uuid_ = _uuid;
                     return status;
                 }
             }
 
-            /// 错误码
-            public int code;
-            /// 错误信息
-            public string message;
-
-            private Board board_
+            /// <summary>获取状态码</summary>
+            public int getCode()
             {
-                get;
-                set;
+                return code_;
             }
 
-            /// 数据层中心中的唯一识别码
-            public string uuid
+            /// <summary>获取状态信息</summary>
+            public string getMessage()
             {
-                get;
-                private set;
+                return message_;
+            }
+
+            /// <summary>获取唯一识别码</summary>
+            public string getUuid()
+            {
+                return uuid_;
             }
 
             public Status()
@@ -81,10 +81,15 @@ namespace XTC.oelMVCS
             {
                 if (string.IsNullOrEmpty(_uuid))
                     return null;
-                return board_.modelCenter.FindStatus(_uuid);
+                return board_.getModelCenter().FindStatus(_uuid);
             }
-        }
 
+            protected int code_ = 0;
+            protected string message_ = "";
+            private string uuid_ = "";
+            private Board board_ = null;
+        }
+        #endregion
 
 
         /*
@@ -95,42 +100,15 @@ namespace XTC.oelMVCS
         }
         */
 
-        protected Logger logger_
-        {
-            get
-            {
-                return board_.logger;
-            }
-        }
-
-        protected Config config_
-        {
-            get
-            {
-                return board_.config;
-            }
-        }
-
-
-        protected Status status_
-        {
-            get;
-            set;
-        }
-
-        private Board board_
-        {
-            get;
-            set;
-        }
 
         /// <summary>向视图层广播消息</summary>
         /// <param name="_action">行为</param>
         /// <param name="_data">数据</param>
         public void Broadcast(string _action, object _data)
         {
-            board_.modelCenter.Broadcast(_action, status_, _data);
+            board_.getModelCenter().Broadcast(_action, status_, _data);
         }
+
 
         /// <summary>
         /// 查找一个数据层
@@ -139,10 +117,10 @@ namespace XTC.oelMVCS
         /// <returns>找到的数据层</returns>
         protected Model findModel(string _uuid)
         {
-            Model.Inner inner = board_.modelCenter.FindModel(_uuid);
+            Model.Inner inner = board_.getModelCenter().FindUnit(_uuid);
             if (null == inner)
                 return null;
-            return inner.model;
+            return inner.getUnit();
         }
 
         /// <summary>
@@ -152,10 +130,10 @@ namespace XTC.oelMVCS
         /// <returns>找到的控制层</returns>
         protected Controller findController(string _uuid)
         {
-            Controller.Inner inner = board_.controllerCenter.FindController(_uuid);
+            Controller.Inner inner = board_.getControllerCenter().FindUnit(_uuid);
             if (null == inner)
                 return null;
-            return inner.controller;
+            return inner.getUnit();
         }
 
         /// <summary>
@@ -168,8 +146,8 @@ namespace XTC.oelMVCS
         {
             Model.Status.Factory factory = new Model.Status.Factory();
             Status status = factory.New<T>(board_, _uuid);
-            _err = board_.modelCenter.PushStatus(_uuid, status);
-            if (_err.IsOK)
+            _err = board_.getModelCenter().PushStatus(_uuid, status);
+            if (Error.IsOK(_err))
                 return status;
             return null;
         }
@@ -181,11 +159,35 @@ namespace XTC.oelMVCS
         /// <param name="_err">错误</param>
         protected void killStatus(string _uuid, out Error _err)
         {
-            _err = board_.modelCenter.PopStatus(_uuid);
+            _err = board_.getModelCenter().PopStatus(_uuid);
+        }
+
+        protected Status status_ = null;
+
+        /// <summary>
+        /// 获取日志
+        /// </summary>
+        /// <returns>
+        /// 日志实列
+        /// </returns>
+        protected Logger getLogger()
+        {
+            return board_.getLogger();
         }
 
         /// <summary>
-        /// 控制层的安装
+        /// 获取配置
+        /// </summary>
+        /// <returns>
+        /// 配置实列
+        /// </returns>
+        protected Config getConfig()
+        {
+            return board_.getConfig();
+        }
+
+        /// <summary>
+        /// 单元的安装
         /// </summary>
         protected virtual void setup()
         {
@@ -193,11 +195,13 @@ namespace XTC.oelMVCS
         }
 
         /// <summary>
-        /// 控制层的拆卸
+        /// 单元的拆卸
         /// </summary>
         protected virtual void dismantle()
         {
 
         }
+
+        private Board board_ = null;
     }
 }//namespace

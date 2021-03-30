@@ -1,42 +1,79 @@
 namespace XTC.oelMVCS
 {
     // 内部通讯的主板
+    // get和set方法为oel的多语言规范，不要直接使用C#的属性存取
     public class Board
     {
-        public ServiceCenter serviceCenter
+        public void setServiceCenter(ServiceCenter _value)
         {
-            get;
-            set;
+            serviceCenter_ = _value;
         }
 
-        public ControllerCenter controllerCenter
+        public void setControllerCenter(ControllerCenter _value)
         {
-            get;
-            set;
+            controllerCenter_ = _value;
         }
 
-        public ViewCenter viewCenter
+        public void setViewCenter(ViewCenter _value)
         {
-            get;
-            set;
+            viewCenter_ = _value;
         }
 
-        public ModelCenter modelCenter
+        public void setModelCenter(ModelCenter _value)
         {
-            get;
-            set;
+            modelCenter_ = _value;
         }
 
-        public Config config
+        public void setConfig(Config _value)
         {
-            get;
-            set;
+            config_ = _value;
         }
 
-        public Logger logger
+        public void setLogger(Logger _logger)
         {
-            get;
-            set;
+            logger_ = _logger;
         }
+
+        public Config getConfig()
+        {
+            return config_;
+        }
+
+        public Logger getLogger()
+        {
+            return logger_;
+        }
+
+        public ServiceCenter getServiceCenter()
+        {
+            return serviceCenter_;
+        }
+
+        public ControllerCenter getControllerCenter()
+        {
+            return controllerCenter_;
+        }
+
+        public ViewCenter getViewCenter()
+        {
+            return viewCenter_;
+        }
+
+        public ModelCenter getModelCenter()
+        {
+            return modelCenter_;
+        }
+
+        private ServiceCenter serviceCenter_ = null;
+
+        private ControllerCenter controllerCenter_ = null;
+
+        private ViewCenter viewCenter_ = null;
+
+        private ModelCenter modelCenter_ = null;
+
+        private Config config_ = null;
+
+        private Logger logger_ = null;
     }
 }

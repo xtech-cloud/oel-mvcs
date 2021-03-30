@@ -2,51 +2,49 @@
 
 namespace XTC.oelMVCS
 {
-    public class ViewCenter
+    public class ViewCenter 
     {
-        private Board board_
-        {
-            get;
-            set;
-        }
-
-        private Dictionary<string, View.Inner> views = new Dictionary<string, View.Inner>();
-
         public ViewCenter(Board _board)
         {
             board_ = _board;
         }
 
-        public Error Register(string _uuid, View.Inner _view)
+        public void HandleAction(string _action, Model.Status _status, object _obj)
         {
-            board_.logger.Info("register view {0}", _uuid);
-            if (views.ContainsKey(_uuid))
-                return Error.NewAccessErr("view {0} exists", _uuid);
-            views[_uuid] = _view;
+            foreach (View.Inner inner in units_.Values)
+            {
+                inner.Handle(_action, _status, _obj);
+            }
+        }
+
+        public Error Register(string _uuid, View.Inner _inner)
+        {
+            board_.getLogger().Info("register {0}", _uuid);
+            if (units_.ContainsKey(_uuid))
+                return Error.NewAccessErr("{0} exists", _uuid);
+            units_[_uuid] = _inner;
             return Error.OK;
         }
 
         public Error Cancel(string _uuid)
         {
-            board_.logger.Info("cancel view {0}", _uuid);
-            if (!views.ContainsKey(_uuid))
-                return Error.NewAccessErr("view {0} not found", _uuid);
-            views.Remove(_uuid);
+            board_.getLogger().Info("cancel {0}", _uuid);
+            if (!units_.ContainsKey(_uuid))
+                return Error.NewAccessErr("{0} not found", _uuid);
+            units_.Remove(_uuid);
             return Error.OK;
         }
 
-
-        public View.Inner FindView(string _uuid)
+        public View.Inner FindUnit(string _uuid)
         {
             View.Inner inner = null;
-            views.TryGetValue(_uuid, out inner);
+            units_.TryGetValue(_uuid, out inner);
             return inner;
         }
 
-
         public void Setup()
         {
-            foreach (View.Inner inner in views.Values)
+            foreach (View.Inner inner in units_.Values)
             {
                 inner.Setup(board_);
             }
@@ -54,18 +52,14 @@ namespace XTC.oelMVCS
 
         public void Dismantle()
         {
-            foreach (View.Inner view in views.Values)
+            foreach (View.Inner inner in units_.Values)
             {
-                view.Dismantle();
+                inner.Dismantle();
             }
         }
 
-        public void HandleAction(string _action, Model.Status _status, object _obj)
-        {
-            foreach (View.Inner inner in views.Values)
-            {
-                inner.Handle(_action, _status, _obj);
-            }
-        }
+        protected Dictionary<string, View.Inner> units_ = new Dictionary<string, View.Inner>();
+
+        private Board board_ = null;
     }
 }//namespace

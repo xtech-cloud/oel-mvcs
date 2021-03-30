@@ -15,29 +15,28 @@ namespace XTC.oelMVCS
         // 内部类，用于接口隔离,隐藏Service无需暴露给外部的公有方法
         public class Inner
         {
-            public Service service
+            public Inner(Service _unit)
             {
-                get;
-                private set;
+                unit_ = _unit;
             }
 
-            public Inner(Service _service)
+            public Service getUnit()
             {
-                service = _service;
+                return unit_;
             }
 
-            internal void Setup(Board _board)
+            public void Setup(Board _board)
             {
-                service.board_ = _board;
-                service.board_.logger.Trace("setup service");
-                service.setup();
+                unit_.board_ = _board;
+                unit_.setup();
             }
 
-            internal void Dismantle()
+            public void Dismantle()
             {
-                service.board_.logger.Trace("dismantle service");
-                service.dismantle();
+                unit_.dismantle();
             }
+
+            private Service unit_ = null;
         }
         #endregion
 
@@ -78,28 +77,6 @@ namespace XTC.oelMVCS
         /// 是否使用mock
         public bool useMock = false;
 
-        protected Logger logger_
-        {
-            get
-            {
-                return board_.logger;
-            }
-        }
-
-        protected Config config_
-        {
-            get
-            {
-                return board_.config;
-            }
-        }
-
-        private Board board_
-        {
-            get;
-            set;
-        }
-
         /// <summary>
         /// 查找一个数据层
         /// </summary>
@@ -107,10 +84,10 @@ namespace XTC.oelMVCS
         /// <returns>找到的数据层</returns>
         protected Model findModel(string _uuid)
         {
-            Model.Inner inner = board_.modelCenter.FindModel(_uuid);
+            Model.Inner inner = board_.getModelCenter().FindUnit(_uuid);
             if (null == inner)
                 return null;
-            return inner.model;
+            return inner.getUnit();
         }
 
         /// <summary>
@@ -120,26 +97,10 @@ namespace XTC.oelMVCS
         /// <returns>找到的服务层</returns>
         protected Service findService(string _uuid)
         {
-            Service.Inner inner = board_.serviceCenter.FindService(_uuid);
+            Service.Inner inner = board_.getServiceCenter().FindUnit(_uuid);
             if (null == inner)
                 return null;
-            return inner.service;
-        }
-
-        /// <summary>
-        /// 服务层的安装
-        /// </summary>
-        protected virtual void setup()
-        {
-
-        }
-
-        /// <summary>
-        /// 服务层的拆卸
-        /// </summary>
-        protected virtual void dismantle()
-        {
-
+            return inner.getUnit();
         }
 
         /// <summary>
@@ -155,14 +116,19 @@ namespace XTC.oelMVCS
         {
             try
             {
-                if (useMock && null != MockProcessor)
-                    MockProcessor(_url, "POST", _params, _onReply, _onError, _options);
+                if (useMock)
+                {
+                    if (null != MockProcessor)
+                        MockProcessor(_url, "POST", _params, _onReply, _onError, _options);
+                    else
+                        _onError(Error.NewNullErr("MockProcessor is null"));
+                }
                 else
                     asyncRequest(_url, "POST", _params, _onReply, _onError, _options);
             }
             catch (System.Exception ex)
             {
-                logger_.Exception(ex);
+                getLogger().Exception(ex);
                 return Error.NewException(ex);
             }
             return Error.OK;
@@ -181,14 +147,19 @@ namespace XTC.oelMVCS
         {
             try
             {
-                if (useMock && null != MockProcessor)
-                    MockProcessor(_url, "GET", _params, _onReply, _onError, _options);
+                if (useMock)
+                {
+                    if (null != MockProcessor)
+                        MockProcessor(_url, "POST", _params, _onReply, _onError, _options);
+                    else
+                        _onError(Error.NewNullErr("MockProcessor is null"));
+                }
                 else
                     asyncRequest(_url, "GET", _params, _onReply, _onError, _options);
             }
             catch (System.Exception ex)
             {
-                logger_.Exception(ex);
+                getLogger().Exception(ex);
                 return Error.NewException(ex);
             }
             return Error.OK;
@@ -207,14 +178,19 @@ namespace XTC.oelMVCS
         {
             try
             {
-                if (useMock && null != MockProcessor)
-                    MockProcessor(_url, "DELETE", _params, _onReply, _onError, _options);
+                if (useMock)
+                {
+                    if (null != MockProcessor)
+                        MockProcessor(_url, "POST", _params, _onReply, _onError, _options);
+                    else
+                        _onError(Error.NewNullErr("MockProcessor is null"));
+                }
                 else
                     asyncRequest(_url, "DELETE", _params, _onReply, _onError, _options);
             }
             catch (System.Exception ex)
             {
-                logger_.Exception(ex);
+                getLogger().Exception(ex);
                 return Error.NewException(ex);
             }
             return Error.OK;
@@ -233,14 +209,19 @@ namespace XTC.oelMVCS
         {
             try
             {
-                if (useMock && null != MockProcessor)
-                    MockProcessor(_url, "PUT", _params, _onReply, _onError, _options);
+                if (useMock)
+                {
+                    if (null != MockProcessor)
+                        MockProcessor(_url, "POST", _params, _onReply, _onError, _options);
+                    else
+                        _onError(Error.NewNullErr("MockProcessor is null"));
+                }
                 else
                     asyncRequest(_url, "PUT", _params, _onReply, _onError, _options);
             }
             catch (System.Exception ex)
             {
-                logger_.Exception(ex);
+                getLogger().Exception(ex);
                 return Error.NewException(ex);
             }
             return Error.OK;
@@ -260,5 +241,45 @@ namespace XTC.oelMVCS
         {
             _onError(Error.NewException(new System.NotImplementedException()));
         }
+
+        /// <summary>
+        /// 获取日志
+        /// </summary>
+        /// <returns>
+        /// 日志实列
+        /// </returns>
+        protected Logger getLogger()
+        {
+            return board_.getLogger();
+        }
+
+        /// <summary>
+        /// 获取配置
+        /// </summary>
+        /// <returns>
+        /// 配置实列
+        /// </returns>
+        protected Config getConfig()
+        {
+            return board_.getConfig();
+        }
+
+        /// <summary>
+        /// 单元的安装
+        /// </summary>
+        protected virtual void setup()
+        {
+
+        }
+
+        /// <summary>
+        /// 单元的拆卸
+        /// </summary>
+        protected virtual void dismantle()
+        {
+
+        }
+
+        private Board board_ = null;
     }
 }//namespace

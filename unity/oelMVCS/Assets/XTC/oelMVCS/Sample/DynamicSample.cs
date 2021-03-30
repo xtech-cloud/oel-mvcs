@@ -23,8 +23,8 @@ public class DynamicSample: MonoBehaviour
         Debug.Log("---------------  Awake ------------------------");
         XTC.oelMVCS.Logger logger = new UnityLogger();
         UIFacade.logger = logger;
-        framework.logger = logger;
-        framework.config = new Config();
+        framework.setLogger(logger);
+        framework.setConfig(new Config());
 
         btnLoad.onClick.AddListener(() =>
         {
@@ -50,10 +50,10 @@ public class DynamicSample: MonoBehaviour
             service.MockProcessor = this.mockProcessor;
             service.useMock = true;
 
-            framework.dynamicPipe.PushModel(SampleModel.NAME, model);
-            framework.dynamicPipe.PushView(SampleView.NAME, view);
-            framework.dynamicPipe.PushController(SampleController.NAME, controller);
-            framework.dynamicPipe.PushService(SampleService.NAME, service);
+            framework.getDynamicPipe().PushModel(SampleModel.NAME, model);
+            framework.getDynamicPipe().PushView(SampleView.NAME, view);
+            framework.getDynamicPipe().PushController(SampleController.NAME, controller);
+            framework.getDynamicPipe().PushService(SampleService.NAME, service);
         });
 
         btnDestroy.onClick.AddListener(() =>
@@ -61,10 +61,10 @@ public class DynamicSample: MonoBehaviour
             btnLoad.gameObject.SetActive(true);
             btnDestroy.gameObject.SetActive(false);
 
-            framework.dynamicPipe.PopModel(SampleModel.NAME);
-            framework.dynamicPipe.PopView(SampleView.NAME);
-            framework.dynamicPipe.PopController(SampleController.NAME);
-            framework.dynamicPipe.PopService(SampleService.NAME);
+            framework.getDynamicPipe().PopModel(SampleModel.NAME);
+            framework.getDynamicPipe().PopView(SampleView.NAME);
+            framework.getDynamicPipe().PopController(SampleController.NAME);
+            framework.getDynamicPipe().PopService(SampleService.NAME);
 
             if(uiFacade != null)
             {
@@ -106,7 +106,7 @@ public class DynamicSample: MonoBehaviour
 
         if (_url.EndsWith("/login"))
         {
-            if (_params["username"].AsString.Equals("admin") && _params["password"].AsString.Equals("admin"))
+            if (_params["username"].AsString().Equals("admin") && _params["password"].AsString().Equals("admin"))
                 _onReply("ok");
             else
                 _onError(Error.NewAccessErr(""));

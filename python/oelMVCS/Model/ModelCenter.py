@@ -1,98 +1,58 @@
-﻿using System.Collections.Generic;
+﻿# -*- coding: utf-8 -*-
 
-namespace XTC.oelMVCS
-{
-    public class ModelCenter
-    {
-        // 数据列表
-        private Dictionary<string, Model.Inner> models = new Dictionary<string, Model.Inner>();
-        // 状态列表
-        private Dictionary<string, Model.Status> status = new Dictionary<string, Model.Status>();
+class ModelCenter:
+    """数据层中心
+    """
 
-        private Board board_
-        {
-            get;
-            set;
-        }
+    def __init__(self, _board:Board):
+        self.__board:Board = _board
+        self.__models:dict<str, Model.Inner> = {}
+        self.__status:dict<str, Model.Inner> = {}
 
-        public ModelCenter(Board _board)
-        {
-            board_ = _board;
-        }
+    def Register(_uuid:str, _inner:Model.Inner) -> Error:
+        self.__board.getLogger().Info("register model {}", _uuid)
+        if (_uuid in self.__models.keys()):
+            return Error.NewAccessErr("model {} exists", _uuid)
+        self.__models[_uuid] = _inner
+        return Error.OK
 
-        public Error Register(string _uuid, Model.Inner _inner)
-        {
-            board_.logger.Info("register model {0}", _uuid);
+    def Cancel(_uuid:str)->Error:
+        self.__board_.getLogger().Info("cancel model {}", _uuid)
 
-            if (models.ContainsKey(_uuid))
-                return Error.NewAccessErr("model {0} exists", _uuid);
-            models[_uuid] = _inner;
-            return Error.OK;
-        }
+        if (not _uuid in self.__models.keys()):
+            return Error.NewAccessErr("model {} not found", _uuid)
+        self.__models.Remove(_uuid)
+        return Error.OK;
 
-        public Error Cancel(string _uuid)
-        {
-            board_.logger.Info("cancel model {0}", _uuid);
+    def FindModel(_uuid:str)->Model.Inner:
+        return self.__models[_uuid]
 
-            if (!models.ContainsKey(_uuid))
-                return Error.NewAccessErr("model {0} not found", _uuid);
-            models.Remove(_uuid);
-            return Error.OK;
-        }
+    def Setup(self):
+        for inner in self.__models.values():
+            inner.Setup(self.__board)
 
-        public Model.Inner FindModel(string _uuid)
-        {
-            Model.Inner inner = null;
-            models.TryGetValue(_uuid, out inner);
-            return inner;
-        }
+    def Dismantle(self):
+        for inner in self.__models.values():
+            inner.Dismantle();
 
-        public void Setup()
-        {
-            foreach (Model.Inner inner in models.Values)
-            {
-                inner.Setup(board_);
-            }
-        }
+    def PushStatus(_uuid:str, _status:Model.Status) -> Error:
+        self.__board.getLogger().Info("push status {}", _uuid)
 
-        public void Dismantle()
-        {
-            foreach (Model.Inner inner in models.Values)
-            {
-                inner.Dismantle();
-            }
-        }
+        if (_uuid in self.__status.keys()):
+            return Error.NewAccessErr("status {} exists", _uuid)
+        self.__status[_uuid] = _status
+        return Error.OK
 
-        public Error PushStatus(string _uuid, Model.Status _status)
-        {
-            board_.logger.Info("push status {0}", _uuid);
+    def PopStatus(_uuid:str) -> Error:
+        self.__board.getLogger().Info("pop status {}", _uuid);
 
-            if (status.ContainsKey(_uuid))
-                return Error.NewAccessErr("status {0} exists", _uuid);
-            status[_uuid] = _status;
-            return Error.OK;
-        }
+        if (not _uuid in status.keys()):
+            return Error.NewAccessErr("status {} not found", _uuid)
+        self.__status.Remove(_uuid)
+        return Error.OK
 
-        public Error PopStatus(string _uuid)
-        {
-            board_.logger.Info("pop status {0}", _uuid);
+    def FindStatus(_uuid:str) -> Error:
+        return self.__status[_uuid]
 
-            if (!status.ContainsKey(_uuid))
-                return Error.NewAccessErr("status {0} not found", _uuid);
-            status.Remove(_uuid);
-            return Error.OK;
-        }
-
-        public Model.Status FindStatus(string _uuid)
-        {
-            Model.Status s = null;
-            status.TryGetValue(_uuid, out s);
-            return s;
-        }
-
-        public void Broadcast(string _action, Model.Status _status, object _data)
-        {
-            board_.viewCenter.HandleAction(_action, _status, _data);
-        }
-    }
-}//namespace
+    def Broadcast(_action:str, _status:Model.Status, _data):
+        self.__board.getViewCenter().HandleAction(_action, _status, _data)

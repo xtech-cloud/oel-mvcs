@@ -15,6 +15,9 @@ class Error:
         self.__code:int = _code
         self.__message:str = _message
 
+    def IsOK(_err) -> bool:
+        return _err.__code == 0
+
     def getCode(self) -> int:
         return self.__code
 
@@ -23,9 +26,6 @@ class Error:
 
     def ToString(self):
         return "{}.{}".format(self.__code, self.__message)
-
-    def IsOK(self) -> bool:
-        return self.__code == 0
 
     def NewNullErr(_message, _args) -> Error:
         message = str.Format(_message, _args)

@@ -17,16 +17,16 @@ public class SampleModel : Model
 
     protected override void setup()
     {
-        Debug.Log("setup SampleModel");
+        getLogger().Trace("setup SampleModel");
         Error err;
         status_ = this.spawnStatus<SampleStatus>("simple", out err);
-        Model.Status test = this.spawnStatus<SampleStatus>("test", out err);
+        this.spawnStatus<SampleStatus>("test", out err);
     }
 
     protected override void dismantle()
     {
         //status_.Cancel();
-        Debug.Log("dismantle SampleModel");
+        getLogger().Trace("dismantle SampleModel");
     }
 
     private SampleController controller
@@ -90,12 +90,12 @@ public class SampleView : View
 
     protected override void setup()
     {
-        Debug.Log("setup SampleView");
+        getLogger().Trace("setup SampleView");
         uiLogin.root.SetActive(true);
         uiHome.root.SetActive(false);
         route("/simple/update", (_status, _data) =>
         {
-            Debug.Log(_status);
+            getLogger().Trace(_status.ToString());
         });
     }
 
@@ -111,11 +111,12 @@ public class SampleView : View
 
     protected override void dismantle()
     {
-        Debug.Log("dismantle SampleView");
+        getLogger().Trace("dismantle SampleView");
     }
 
     private void onLoginClick()
     {
+        getLogger().Trace("click login");
         uiLogin.txtTip.text = "";
         service.CallLogin(uiLogin.inputUsername.text, uiLogin.inputPassword.text);
         model.Broadcast("/simple/update", null);
@@ -139,12 +140,12 @@ public class SampleController : Controller
 
     protected override void setup()
     {
-        Debug.Log("setup SampleController");
+        getLogger().Trace("setup SampleController");
     }
 
     protected override void dismantle()
     {
-        Debug.Log("dismantle SampleController");
+        getLogger().Trace("dismantle SampleController");
     }
 
     private SampleView view
@@ -159,7 +160,7 @@ public class SampleController : Controller
     {
         // 使用状态访问已注册的其他状态
         SampleModel.SampleStatus testStatus =  _status.Access("test") as SampleModel.SampleStatus;
-        Debug.Log(testStatus.uuid);
+        getLogger().Debug(testStatus.getUuid());
 
         if (null == _status.latestError)
         {
@@ -178,12 +179,12 @@ public class SampleService : UnityService
 
     protected override void setup()
     {
-        Debug.Log("setup SampleService");
+        getLogger().Trace("setup SampleService");
     }
 
     protected override void dismantle()
     {
-        Debug.Log("dismantle SampleService");
+        getLogger().Trace("dismantle SampleService");
     }
 
     private SampleModel model
@@ -197,8 +198,8 @@ public class SampleService : UnityService
     public void CallLogin(string _username, string _password)
     {
         Dictionary<string, Any> param = new Dictionary<string, Any>();
-        param.Add("username", new Any(_username));
-        param.Add("password", new Any(_password));
+        param.Add("username", Any.FromString(_username));
+        param.Add("password", Any.FromString(_password));
         post("/login", param, (_reply) =>
         {
             if (_reply.Equals("ok"))
@@ -207,7 +208,29 @@ public class SampleService : UnityService
                 model.UpdateLoginResult(_reply);
         }, (_error) =>
         {
-            model.UpdateLoginResult(_error.message);
+            model.UpdateLoginResult("error");
         }, null);
+    }
+
+    public void mockProcessor(string _url, string _method, Dictionary<string, Any> _params, Service.OnReplyCallback _onReply, Service.OnErrorCallback _onError, Service.Options _options)
+    {
+        Debug.Log("use mock processor");
+        mono.StartCoroutine(asyncMockProcessor(_url, _method, _params, _onReply, _onError, _options));
+    }
+
+    IEnumerator asyncMockProcessor(string _url, string _method, Dictionary<string, Any> _params, Service.OnReplyCallback _onReply, Service.OnErrorCallback _onError, Service.Options _options)
+    {
+        yield return new WaitForEndOfFrame();
+
+        if (_url.EndsWith("/login"))
+        {
+            if (_params["username"].AsString().Equals("admin") && _params["password"].AsString().Equals("admin"))
+                _onReply("ok");
+            else
+                _onError(Error.NewAccessErr(""));
+            yield break;
+        }
+
+        _onError(Error.NewAccessErr("404 not found"));
     }
 }

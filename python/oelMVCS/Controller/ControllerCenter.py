@@ -1,11 +1,13 @@
 ﻿# -*- coding: utf-8 -*-
 
+from typing import Dict, NewType
+
 class ControllerCenter:
+    """控制层中心
     """
-    控制层中心
-    """
+
     def __init__(self, _board:Board):
-        self.__controllers : dict<str,Controller.Inner> = {}
+        self.__controllers : Dict[str,Controller.Inner] = {}
         self.__board :Board = _board
 
     def Register(self, _uuid:str, _inner:Controller.Inner) -> Error:

@@ -4,17 +4,6 @@ namespace XTC.oelMVCS
 {
     public class ModelCenter
     {
-        // 数据列表
-        private Dictionary<string, Model.Inner> models = new Dictionary<string, Model.Inner>();
-        // 状态列表
-        private Dictionary<string, Model.Status> status = new Dictionary<string, Model.Status>();
-
-        private Board board_
-        {
-            get;
-            set;
-        }
-
         public ModelCenter(Board _board)
         {
             board_ = _board;
@@ -22,34 +11,32 @@ namespace XTC.oelMVCS
 
         public Error Register(string _uuid, Model.Inner _inner)
         {
-            board_.logger.Info("register model {0}", _uuid);
-
-            if (models.ContainsKey(_uuid))
-                return Error.NewAccessErr("model {0} exists", _uuid);
-            models[_uuid] = _inner;
+            board_.getLogger().Info("register {0}", _uuid);
+            if (units_.ContainsKey(_uuid))
+                return Error.NewAccessErr("{0} exists", _uuid);
+            units_[_uuid] = _inner;
             return Error.OK;
         }
 
         public Error Cancel(string _uuid)
         {
-            board_.logger.Info("cancel model {0}", _uuid);
-
-            if (!models.ContainsKey(_uuid))
-                return Error.NewAccessErr("model {0} not found", _uuid);
-            models.Remove(_uuid);
+            board_.getLogger().Info("cancel {0}", _uuid);
+            if (!units_.ContainsKey(_uuid))
+                return Error.NewAccessErr("{0} not found", _uuid);
+            units_.Remove(_uuid);
             return Error.OK;
         }
 
-        public Model.Inner FindModel(string _uuid)
+        public Model.Inner FindUnit(string _uuid)
         {
             Model.Inner inner = null;
-            models.TryGetValue(_uuid, out inner);
+            units_.TryGetValue(_uuid, out inner);
             return inner;
         }
 
         public void Setup()
         {
-            foreach (Model.Inner inner in models.Values)
+            foreach (Model.Inner inner in units_.Values)
             {
                 inner.Setup(board_);
             }
@@ -57,7 +44,7 @@ namespace XTC.oelMVCS
 
         public void Dismantle()
         {
-            foreach (Model.Inner inner in models.Values)
+            foreach (Model.Inner inner in units_.Values)
             {
                 inner.Dismantle();
             }
@@ -65,34 +52,41 @@ namespace XTC.oelMVCS
 
         public Error PushStatus(string _uuid, Model.Status _status)
         {
-            board_.logger.Info("push status {0}", _uuid);
+            board_.getLogger().Info("push status {0}", _uuid);
 
-            if (status.ContainsKey(_uuid))
+            if (status_.ContainsKey(_uuid))
                 return Error.NewAccessErr("status {0} exists", _uuid);
-            status[_uuid] = _status;
+            status_[_uuid] = _status;
             return Error.OK;
         }
 
         public Error PopStatus(string _uuid)
         {
-            board_.logger.Info("pop status {0}", _uuid);
+            board_.getLogger().Info("pop status {0}", _uuid);
 
-            if (!status.ContainsKey(_uuid))
+            if (!status_.ContainsKey(_uuid))
                 return Error.NewAccessErr("status {0} not found", _uuid);
-            status.Remove(_uuid);
+            status_.Remove(_uuid);
             return Error.OK;
         }
 
         public Model.Status FindStatus(string _uuid)
         {
             Model.Status s = null;
-            status.TryGetValue(_uuid, out s);
+            status_.TryGetValue(_uuid, out s);
             return s;
         }
 
         public void Broadcast(string _action, Model.Status _status, object _data)
         {
-            board_.viewCenter.HandleAction(_action, _status, _data);
+            board_.getViewCenter().HandleAction(_action, _status, _data);
         }
+
+        private Dictionary<string, Model.Inner> units_ = new Dictionary<string, Model.Inner>();
+
+        // 状态列表
+        private Dictionary<string, Model.Status> status_ = new Dictionary<string, Model.Status>();
+
+        private Board board_ = null;
     }
 }//namespace
