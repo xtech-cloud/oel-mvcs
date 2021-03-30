@@ -6,7 +6,7 @@ namespace XTC.oelMVCS
     {
         protected Dictionary<string, Any> fields_ = new Dictionary<string, Any>();
 
-        public void Merge(string _content)
+        public virtual void Merge(string _content)
         {
             throw new System.NotImplementedException();
         }
