@@ -33,7 +33,7 @@ namespace XTC.oelMVCS
         {
             Any any = new Any();
             any.tag_ = Tag.FloatValue;
-            any.value_ = _value.ToString();
+            any.value_ = _value;
             return any;
         }
 
@@ -41,7 +41,7 @@ namespace XTC.oelMVCS
         {
             Any any = new Any();
             any.tag_ = Tag.DoubleValue;
-            any.value_ = _value.ToString();
+            any.value_ = _value;
             return any;
         }
 
@@ -49,7 +49,7 @@ namespace XTC.oelMVCS
         {
             Any any = new Any();
             any.tag_ = Tag.BoolValue;
-            any.value_ = _value.ToString();
+            any.value_ = _value;
             return any;
         }
 
@@ -57,7 +57,7 @@ namespace XTC.oelMVCS
         {
             Any any = new Any();
             any.tag_ = Tag.IntValue;
-            any.value_ = _value.ToString();
+            any.value_ = _value;
             return any;
         }
 
@@ -65,7 +65,7 @@ namespace XTC.oelMVCS
         {
             Any any = new Any();
             any.tag_ = Tag.LongValue;
-            any.value_ = _value.ToString();
+            any.value_ = _value;
             return any;
         }
 
@@ -145,6 +145,11 @@ namespace XTC.oelMVCS
             if (IsBool())
                 return (bool)value_;
             return false;
+        }
+
+        public object AsObject()
+        {
+            return value_;
         }
     }//class
 }//namespace
