@@ -14,7 +14,7 @@ namespace XTC.oelMVCS
             BoolValue = 6
         }
 
-        private string value_ = "";
+        private object value_ = null;
         private Tag tag_ = Tag.NULL;
 
         public Any()
@@ -106,48 +106,45 @@ namespace XTC.oelMVCS
 
         public string AsString()
         {
-            return value_;
+            if (IsString())
+                return (string)value_;
+            return "";
         }
 
 
         public int AsInt()
         {
-            int v = 0;
-            if (int.TryParse(value_, out v))
-                return v;
+            if (IsInt())
+                return (int)value_;
             return 0;
         }
 
         public long AsLong()
         {
-            long v = 0;
-            if (long.TryParse(value_, out v))
-                return v;
+            if (IsLong())
+                return (long)value_;
             return 0;
         }
 
         public float AsFloat()
         {
-            float v = 0.0f;
-            if (float.TryParse(value_, out v))
-                return v;
+            if (IsFloat())
+                return (float)value_;
             return 0.0f;
         }
 
         public double AsDouble()
         {
-            double v = 0.0;
-            if (double.TryParse(value_, out v))
-                return v;
+            if (IsDouble())
+                return (double)value_;
             return 0.0;
         }
 
         public bool AsBool()
         {
-            bool v = false;
-            if (bool.TryParse(value_, out v))
-                return v;
-            return !string.IsNullOrEmpty(value_);
+            if (IsBool())
+                return (bool)value_;
+            return false;
         }
     }//class
 }//namespace
