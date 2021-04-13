@@ -11,7 +11,14 @@ namespace XTC.oelMVCS
             LongValue = 3,
             FloatValue = 4,
             DoubleValue = 5,
-            BoolValue = 6
+            BoolValue = 6,
+            StringAryValue = 11,
+            IntAryValue = 12,
+            LongAryValue = 13,
+            FloatAryValue = 14,
+            DoubleAryValue = 15,
+            BoolAryValue = 16,
+            ObjectValue = 99
         }
 
         private object value_ = null;
@@ -19,6 +26,14 @@ namespace XTC.oelMVCS
 
         public Any()
         {
+        }
+
+        public static Any FromObject(object _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.ObjectValue;
+            any.value_ = _value;
+            return any;
         }
 
         public static Any FromString(string _value)
@@ -69,9 +84,62 @@ namespace XTC.oelMVCS
             return any;
         }
 
+        public static Any FromStringAry(string[] _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.StringAryValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Any FromFloatAry(float[] _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.FloatAryValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Any FromDoubleAry(double[] _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.DoubleAryValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Any FromAryBool(bool[] _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.BoolAryValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Any FromAryInt(int[] _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.IntAryValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Any FromAryLong(long[] _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.LongAryValue;
+            any.value_ = _value;
+            return any;
+        }
+
         public bool IsNull()
         {
             return tag_ == Tag.NULL;
+        }
+
+        public bool IsObject()
+        {
+            return tag_ == Tag.ObjectValue;
         }
 
         public bool IsString()
@@ -102,6 +170,35 @@ namespace XTC.oelMVCS
         public bool IsBool()
         {
             return tag_ == Tag.BoolValue;
+        }
+        public bool IsStringAry()
+        {
+            return tag_ == Tag.StringAryValue;
+        }
+
+        public bool IsIntAry()
+        {
+            return tag_ == Tag.IntAryValue;
+        }
+
+        public bool IsLongAry()
+        {
+            return tag_ == Tag.LongAryValue;
+        }
+
+        public bool IsFloatAry()
+        {
+            return tag_ == Tag.FloatAryValue;
+        }
+
+        public bool IsDoubleAry()
+        {
+            return tag_ == Tag.DoubleAryValue;
+        }
+
+        public bool IsBoolAry()
+        {
+            return tag_ == Tag.BoolAryValue;
         }
 
         public string AsString()
@@ -145,6 +242,49 @@ namespace XTC.oelMVCS
             if (IsBool())
                 return (bool)value_;
             return false;
+        }
+
+        public string[] AsStringAry()
+        {
+            if (IsStringAry())
+                return (string[])value_;
+            return new string[0];
+        }
+
+
+        public int[] AsIntAry()
+        {
+            if (IsIntAry())
+                return (int[])value_;
+            return new int[0];
+        }
+
+        public long[] AsLongAry()
+        {
+            if (IsLongAry())
+                return (long[])value_;
+            return new long[0];
+        }
+
+        public float[] AsFloatAry()
+        {
+            if (IsFloatAry())
+                return (float[])value_;
+            return new float[0];
+        }
+
+        public double[] AsDoubleAry()
+        {
+            if (IsDoubleAry())
+                return (double[])value_;
+            return new double[0];
+        }
+
+        public bool[] AsBoolAry()
+        {
+            if (IsBoolAry())
+                return (bool[])value_;
+            return new bool[0];
         }
 
         public object AsObject()
