@@ -108,7 +108,7 @@ namespace XTC.oelMVCS
             return any;
         }
 
-        public static Any FromAryBool(bool[] _value)
+        public static Any FromBoolAry(bool[] _value)
         {
             Any any = new Any();
             any.tag_ = Tag.BoolAryValue;
@@ -116,7 +116,7 @@ namespace XTC.oelMVCS
             return any;
         }
 
-        public static Any FromAryInt(int[] _value)
+        public static Any FromIntAry(int[] _value)
         {
             Any any = new Any();
             any.tag_ = Tag.IntAryValue;
@@ -124,7 +124,7 @@ namespace XTC.oelMVCS
             return any;
         }
 
-        public static Any FromAryLong(long[] _value)
+        public static Any FromLongAry(long[] _value)
         {
             Any any = new Any();
             any.tag_ = Tag.LongAryValue;

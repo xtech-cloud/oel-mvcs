@@ -68,19 +68,35 @@ namespace XTC.oelMVCS
             return facade;
         }
 
-        public void Setup()
+        public void PreSetup()
         {
             foreach (View.Inner inner in units_.Values)
             {
                 inner.PreSetup();
             }
+        }
+
+        public void Setup()
+        {
             foreach (View.Inner inner in units_.Values)
             {
                 inner.Setup();
             }
+        }
+
+        public void PostSetup()
+        {
             foreach (View.Inner inner in units_.Values)
             {
                 inner.PostSetup();
+            }
+        }
+
+        public void PreDismantle()
+        {
+            foreach (View.Inner inner in units_.Values)
+            {
+                inner.PreDismantle();
             }
         }
 
@@ -88,12 +104,12 @@ namespace XTC.oelMVCS
         {
             foreach (View.Inner inner in units_.Values)
             {
-                inner.PreDismantle();
-            }
-            foreach (View.Inner inner in units_.Values)
-            {
                 inner.Dismantle();
             }
+        }
+
+        public void PostDismantle()
+        {
             foreach (View.Inner inner in units_.Values)
             {
                 inner.PostDismantle();

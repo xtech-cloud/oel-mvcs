@@ -50,8 +50,8 @@ namespace XTC.oelMVCS
         public void Initialize()
         {
             board_.getLogger().Info("initialize framework");
-            board_.setViewCenter(new ViewCenter(board_));
             board_.setModelCenter(new ModelCenter(board_));
+            board_.setViewCenter(new ViewCenter(board_));
             board_.setControllerCenter(new ControllerCenter(board_));
             board_.setServiceCenter(new ServiceCenter(board_));
         }
@@ -63,10 +63,18 @@ namespace XTC.oelMVCS
         public void Setup()
         {
             board_.getLogger().Info("setup framework");
-            board_.getViewCenter().Setup();
-            board_.getServiceCenter().Setup();
+            board_.getModelCenter().PreSetup();
+            board_.getViewCenter().PreSetup();
+            board_.getControllerCenter().PreSetup();
+            board_.getServiceCenter().PreSetup();
             board_.getModelCenter().Setup();
+            board_.getViewCenter().Setup();
             board_.getControllerCenter().Setup();
+            board_.getServiceCenter().Setup();
+            board_.getModelCenter().PostSetup();
+            board_.getViewCenter().PostSetup();
+            board_.getControllerCenter().PostSetup();
+            board_.getServiceCenter().PostSetup();
         }
 
         /// <summary>
@@ -76,10 +84,18 @@ namespace XTC.oelMVCS
         public void Dismantle()
         {
             board_.getLogger().Info("dismantle framework");
-            board_.getViewCenter().Dismantle();
+            board_.getServiceCenter().PreDismantle();
+            board_.getControllerCenter().PreDismantle();
+            board_.getViewCenter().PreDismantle();
+            board_.getModelCenter().PreDismantle();
             board_.getServiceCenter().Dismantle();
-            board_.getModelCenter().Dismantle();
             board_.getControllerCenter().Dismantle();
+            board_.getViewCenter().Dismantle();
+            board_.getModelCenter().Dismantle();
+            board_.getServiceCenter().PostDismantle();
+            board_.getControllerCenter().PostDismantle();
+            board_.getViewCenter().PostDismantle();
+            board_.getModelCenter().PostDismantle();
         }
 
 

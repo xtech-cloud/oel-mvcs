@@ -34,19 +34,35 @@ namespace XTC.oelMVCS
             return inner;
         }
 
-        public void Setup()
+        public void PreSetup()
         {
             foreach (Controller.Inner inner in units_.Values)
             {
                 inner.PreSetup();
             }
+        }
+
+        public void Setup()
+        {
             foreach (Controller.Inner inner in units_.Values)
             {
                 inner.Setup();
             }
+        }
+
+        public void PostSetup()
+        {
             foreach (Controller.Inner inner in units_.Values)
             {
                 inner.PostSetup();
+            }
+        }
+
+        public void PreDismantle()
+        {
+            foreach (Controller.Inner inner in units_.Values)
+            {
+                inner.PreDismantle();
             }
         }
 
@@ -54,12 +70,12 @@ namespace XTC.oelMVCS
         {
             foreach (Controller.Inner inner in units_.Values)
             {
-                inner.PreDismantle();
-            }
-            foreach (Controller.Inner inner in units_.Values)
-            {
                 inner.Dismantle();
             }
+        }
+
+        public void PostDismantle()
+        {
             foreach (Controller.Inner inner in units_.Values)
             {
                 inner.PostDismantle();
