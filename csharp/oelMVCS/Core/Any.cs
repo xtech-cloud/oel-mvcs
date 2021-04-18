@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 
 namespace XTC.oelMVCS
 {
@@ -7,17 +8,23 @@ namespace XTC.oelMVCS
         {
             NULL = 0,
             StringValue = 1,
-            IntValue = 2,
-            LongValue = 3,
-            FloatValue = 4,
-            DoubleValue = 5,
+            Int32Value = 2,
+            Int64Value = 3,
+            Float32Value = 4,
+            Float64Value = 5,
             BoolValue = 6,
             StringAryValue = 11,
-            IntAryValue = 12,
-            LongAryValue = 13,
-            FloatAryValue = 14,
-            DoubleAryValue = 15,
+            Int32AryValue = 12,
+            Int64AryValue = 13,
+            Float32AryValue = 14,
+            Float64AryValue = 15,
             BoolAryValue = 16,
+            StringMapValue = 21,
+            Int32MapValue = 22,
+            Int64MapValue = 23,
+            Float32MapValue = 24,
+            Float64MapValue = 25,
+            BoolMapValue = 26,
             ObjectValue = 99
         }
 
@@ -44,18 +51,18 @@ namespace XTC.oelMVCS
             return any;
         }
 
-        public static Any FromFloat(float _value)
+        public static Any FromFloat32(float _value)
         {
             Any any = new Any();
-            any.tag_ = Tag.FloatValue;
+            any.tag_ = Tag.Float32Value;
             any.value_ = _value;
             return any;
         }
 
-        public static Any FromDouble(double _value)
+        public static Any FromFloat64(double _value)
         {
             Any any = new Any();
-            any.tag_ = Tag.DoubleValue;
+            any.tag_ = Tag.Float64Value;
             any.value_ = _value;
             return any;
         }
@@ -68,18 +75,18 @@ namespace XTC.oelMVCS
             return any;
         }
 
-        public static Any FromInt(int _value)
+        public static Any FromInt32(int _value)
         {
             Any any = new Any();
-            any.tag_ = Tag.IntValue;
+            any.tag_ = Tag.Int32Value;
             any.value_ = _value;
             return any;
         }
 
-        public static Any FromLong(long _value)
+        public static Any FromInt64(long _value)
         {
             Any any = new Any();
-            any.tag_ = Tag.LongValue;
+            any.tag_ = Tag.Int64Value;
             any.value_ = _value;
             return any;
         }
@@ -92,18 +99,18 @@ namespace XTC.oelMVCS
             return any;
         }
 
-        public static Any FromFloatAry(float[] _value)
+        public static Any FromFloat32Ary(float[] _value)
         {
             Any any = new Any();
-            any.tag_ = Tag.FloatAryValue;
+            any.tag_ = Tag.Float32AryValue;
             any.value_ = _value;
             return any;
         }
 
-        public static Any FromDoubleAry(double[] _value)
+        public static Any FromFloat64Ary(double[] _value)
         {
             Any any = new Any();
-            any.tag_ = Tag.DoubleAryValue;
+            any.tag_ = Tag.Float64AryValue;
             any.value_ = _value;
             return any;
         }
@@ -116,18 +123,66 @@ namespace XTC.oelMVCS
             return any;
         }
 
-        public static Any FromIntAry(int[] _value)
+        public static Any FromInt32Ary(int[] _value)
         {
             Any any = new Any();
-            any.tag_ = Tag.IntAryValue;
+            any.tag_ = Tag.Int32AryValue;
             any.value_ = _value;
             return any;
         }
 
-        public static Any FromLongAry(long[] _value)
+        public static Any FromInt64Ary(long[] _value)
         {
             Any any = new Any();
-            any.tag_ = Tag.LongAryValue;
+            any.tag_ = Tag.Int64AryValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Any FromStringMap(Dictionary<string, string> _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.StringMapValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Any FromFloat32Map(Dictionary<string, float> _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.Float32MapValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Any FromFloat64Map(Dictionary<string, double> _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.Float64MapValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Any FromBoolMap(Dictionary<string, bool> _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.BoolMapValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Any FromInt32Map(Dictionary<string, int> _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.Int32MapValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Any FromInt64Map(Dictionary<string, long> _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.Int64MapValue;
             any.value_ = _value;
             return any;
         }
@@ -149,22 +204,22 @@ namespace XTC.oelMVCS
 
         public bool IsInt()
         {
-            return tag_ == Tag.IntValue;
+            return tag_ == Tag.Int32Value;
         }
 
         public bool IsLong()
         {
-            return tag_ == Tag.LongValue;
+            return tag_ == Tag.Int64Value;
         }
 
         public bool IsFloat()
         {
-            return tag_ == Tag.FloatValue;
+            return tag_ == Tag.Float32Value;
         }
 
         public bool IsDouble()
         {
-            return tag_ == Tag.DoubleValue;
+            return tag_ == Tag.Float64Value;
         }
 
         public bool IsBool()
@@ -176,29 +231,59 @@ namespace XTC.oelMVCS
             return tag_ == Tag.StringAryValue;
         }
 
-        public bool IsIntAry()
+        public bool IsInt32Ary()
         {
-            return tag_ == Tag.IntAryValue;
+            return tag_ == Tag.Int32AryValue;
         }
 
-        public bool IsLongAry()
+        public bool IsInt64Ary()
         {
-            return tag_ == Tag.LongAryValue;
+            return tag_ == Tag.Int64AryValue;
         }
 
-        public bool IsFloatAry()
+        public bool IsFloat32Ary()
         {
-            return tag_ == Tag.FloatAryValue;
+            return tag_ == Tag.Float32AryValue;
         }
 
-        public bool IsDoubleAry()
+        public bool IsFloat64Ary()
         {
-            return tag_ == Tag.DoubleAryValue;
+            return tag_ == Tag.Float64AryValue;
         }
 
         public bool IsBoolAry()
         {
             return tag_ == Tag.BoolAryValue;
+        }
+
+        public bool IsStringMap()
+        {
+            return tag_ == Tag.StringMapValue;
+        }
+
+        public bool IsInt32Map()
+        {
+            return tag_ == Tag.Int32MapValue;
+        }
+
+        public bool IsInt64Map()
+        {
+            return tag_ == Tag.Int64MapValue;
+        }
+
+        public bool IsFloat32Map()
+        {
+            return tag_ == Tag.Float32MapValue;
+        }
+
+        public bool IsFloat64Map()
+        {
+            return tag_ == Tag.Float64MapValue;
+        }
+
+        public bool IsBoolMap()
+        {
+            return tag_ == Tag.BoolMapValue;
         }
 
         public string AsString()
@@ -252,30 +337,30 @@ namespace XTC.oelMVCS
         }
 
 
-        public int[] AsIntAry()
+        public int[] AsInt32Ary()
         {
-            if (IsIntAry())
+            if (IsInt32Ary())
                 return (int[])value_;
             return new int[0];
         }
 
-        public long[] AsLongAry()
+        public long[] AsInt64Ary()
         {
-            if (IsLongAry())
+            if (IsInt64Ary())
                 return (long[])value_;
             return new long[0];
         }
 
-        public float[] AsFloatAry()
+        public float[] AsFloat32Ary()
         {
-            if (IsFloatAry())
+            if (IsFloat32Ary())
                 return (float[])value_;
             return new float[0];
         }
 
-        public double[] AsDoubleAry()
+        public double[] AsFloat64Ary()
         {
-            if (IsDoubleAry())
+            if (IsFloat64Ary())
                 return (double[])value_;
             return new double[0];
         }
@@ -285,6 +370,49 @@ namespace XTC.oelMVCS
             if (IsBoolAry())
                 return (bool[])value_;
             return new bool[0];
+        }
+
+        public Dictionary<string, string> AsStringMap()
+        {
+            if (IsStringMap())
+                return (Dictionary<string, string>)value_;
+            return new Dictionary<string, string>();
+        }
+
+
+        public Dictionary<string, int> AsInt32Map()
+        {
+            if (IsInt32Ary())
+                return (Dictionary<string, int>)value_;
+            return new Dictionary<string, int>();
+        }
+
+        public Dictionary<string, long> AsInt64Map()
+        {
+            if (IsInt64Ary())
+                return (Dictionary<string, long>)value_;
+            return new Dictionary<string, long>();
+        }
+
+        public Dictionary<string, float> AsFloat32Map()
+        {
+            if (IsFloat32Map())
+                return (Dictionary<string, float>)value_;
+            return new Dictionary<string, float>();
+        }
+
+        public Dictionary<string, double> AsFloat64Map()
+        {
+            if (IsFloat64Map())
+                return (Dictionary<string, double>)value_;
+            return new Dictionary<string, double>();
+        }
+
+        public Dictionary<string, bool> AsBoolMap()
+        {
+            if (IsBoolMap())
+                return (Dictionary<string, bool>)value_;
+            return new Dictionary<string, bool>();
         }
 
         public object AsObject()
