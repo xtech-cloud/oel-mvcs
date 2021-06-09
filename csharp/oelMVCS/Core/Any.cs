@@ -13,6 +13,7 @@ namespace XTC.oelMVCS
             Float32Value = 4,
             Float64Value = 5,
             BoolValue = 6,
+            BytesValue = 7,
             StringAryValue = 11,
             Int32AryValue = 12,
             Int64AryValue = 13,
@@ -139,6 +140,14 @@ namespace XTC.oelMVCS
             return any;
         }
 
+        public static Any FromBytes(byte[] _value)
+        {
+            Any any = new Any();
+            any.tag_ = Tag.BytesValue;
+            any.value_ = _value;
+            return any;
+        }
+
         public static Any FromStringMap(Dictionary<string, string> _value)
         {
             Any any = new Any();
@@ -202,22 +211,22 @@ namespace XTC.oelMVCS
             return tag_ == Tag.StringValue;
         }
 
-        public bool IsInt()
+        public bool IsInt32()
         {
             return tag_ == Tag.Int32Value;
         }
 
-        public bool IsLong()
+        public bool IsInt64()
         {
             return tag_ == Tag.Int64Value;
         }
 
-        public bool IsFloat()
+        public bool IsFloat32()
         {
             return tag_ == Tag.Float32Value;
         }
 
-        public bool IsDouble()
+        public bool IsFloat64()
         {
             return tag_ == Tag.Float64Value;
         }
@@ -254,6 +263,11 @@ namespace XTC.oelMVCS
         public bool IsBoolAry()
         {
             return tag_ == Tag.BoolAryValue;
+        }
+
+        public bool IsBytes()
+        {
+            return tag_ == Tag.BytesValue;
         }
 
         public bool IsStringMap()
@@ -294,30 +308,30 @@ namespace XTC.oelMVCS
         }
 
 
-        public int AsInt()
+        public int AsInt32()
         {
-            if (IsInt())
+            if (IsInt32())
                 return (int)value_;
             return 0;
         }
 
-        public long AsLong()
+        public long AsInt64()
         {
-            if (IsLong())
+            if (IsInt64())
                 return (long)value_;
             return 0;
         }
 
-        public float AsFloat()
+        public float AsFloat32()
         {
-            if (IsFloat())
+            if (IsFloat32())
                 return (float)value_;
             return 0.0f;
         }
 
-        public double AsDouble()
+        public double AsFloat64()
         {
-            if (IsDouble())
+            if (IsFloat64())
                 return (double)value_;
             return 0.0;
         }
@@ -370,6 +384,13 @@ namespace XTC.oelMVCS
             if (IsBoolAry())
                 return (bool[])value_;
             return new bool[0];
+        }
+
+        public byte[] AsBytes()
+        {
+            if (IsBytes())
+                return (byte[])value_;
+            return new byte[0];
         }
 
         public Dictionary<string, string> AsStringMap()
