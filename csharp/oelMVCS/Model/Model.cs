@@ -94,7 +94,7 @@ namespace XTC.oelMVCS
             {
             }
 
-            public static T New<T>(int _code, string _message) where T:Status, new ()
+            public static T New<T>(int _code, string _message) where T : Status, new()
             {
                 T status = new T();
                 status.code_ = _code;
@@ -119,13 +119,8 @@ namespace XTC.oelMVCS
         #endregion
 
 
-        /*
-        public Dictionary<string, object> property
-        {
-            get;
-            private set;
-        }
-        */
+        protected Dictionary<string, Any> property_ = null;
+        protected bool isAllowSetProperty_ = true;
 
 
         /// <summary>向视图层广播消息</summary>
@@ -134,6 +129,29 @@ namespace XTC.oelMVCS
         public void Broadcast(string _action, object _data)
         {
             board_.getModelCenter().Broadcast(_action, status_, _data);
+        }
+
+        public void SetProperty(string _key, Any _value)
+        {
+            if (null == property_)
+                return;
+            if (!isAllowSetProperty_)
+                throw new System.MethodAccessException("Not allowed to set a property, the isAllowSetProperty_ is false");
+
+            property_[_key] = _value;
+        }
+
+
+        public Any GetProperty(string _key)
+        {
+            if (null == property_)
+                return new Any();
+            Any value;
+            if(!property_.TryGetValue(_key, out value))
+            {
+                value = new Any();
+            }
+            return value;
         }
 
 
