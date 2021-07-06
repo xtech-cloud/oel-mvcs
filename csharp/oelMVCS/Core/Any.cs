@@ -335,16 +335,28 @@ namespace XTC.oelMVCS
 
         /// <summary>
         /// 转换为32位整型
-        /// 支持源类型：int, string, byte[]
+        /// 支持源类型：int, long, float, double, string, bool, byte[]
         /// </summary>
         /// <returns>失败返回0</returns>
         public int AsInt32()
         {
             int value = 0;
-            if (IsInt32() || IsString())
+            if (IsInt32() || IsInt64() || IsString())
             {
                 if (!int.TryParse(value_, out value))
                     value = 0;
+            }
+            else if (IsFloat32() || IsFloat64())
+            {
+                double dv;
+                if (!double.TryParse(value_, out dv))
+                    dv = 0;
+                if (dv <= int.MaxValue)
+                    value = (int)dv;
+            }
+            else if (IsBool())
+            {
+                value = AsBool() ? 1 : 0;
             }
             else if (IsBytes())
             {
@@ -355,16 +367,28 @@ namespace XTC.oelMVCS
 
         /// <summary>
         /// 转换为64位整型
-        /// 支持源类型：long,string, byte[]
+        /// 支持源类型：int, long, float, double, string, bool, byte[]
         /// </summary>
         /// <returns>失败返回0</returns>
         public long AsInt64()
         {
             long value = 0;
-            if (IsInt64() || IsString())
+            if (IsInt32() || IsInt64() || IsString())
             {
                 if (!long.TryParse(value_, out value))
                     value = 0;
+            }
+            else if (IsFloat32() || IsFloat64())
+            {
+                double dv;
+                if (!double.TryParse(value_, out dv))
+                    dv = 0;
+                if (dv <= long.MaxValue)
+                    value = (long)dv;
+            }
+            else if (IsBool())
+            {
+                value = AsBool() ? 1 : 0;
             }
             else if (IsBytes())
             {
@@ -375,39 +399,63 @@ namespace XTC.oelMVCS
 
         /// <summary>
         /// 转换为32位浮点型
-        /// 支持源类型：float,string
+        /// 支持源类型：int, long, float, double, bool, string
         /// </summary>
         /// <returns>失败返回0</returns>
         public float AsFloat32()
         {
             float value = 0;
-            if (IsFloat32() || IsString())
+            if (IsFloat32() || IsFloat64() || IsString())
             {
                 if (!float.TryParse(value_, out value))
                     value = 0f;
+            }
+            else if (IsInt32() || IsInt64())
+            {
+                long lv;
+                if (!long.TryParse(value_, out lv))
+                    lv = 0;
+                if (lv <= float.MaxValue)
+                    value = (float)lv;
+            }
+            else if (IsBool())
+            {
+                value = AsBool() ? 1 : 0;
             }
             return value;
         }
 
         /// <summary>
         /// 转换为64位浮点型
-        /// 支持源类型：float,string
+        /// 支持源类型：float,double, int, long,string
         /// </summary>
         /// <returns>失败返回0</returns>
         public double AsFloat64()
         {
             double value = 0;
-            if (IsFloat64() || IsString())
+            if (IsFloat32() || IsFloat64() || IsString())
             {
                 if (!double.TryParse(value_, out value))
                     value = 0;
+            }
+            else if (IsInt32() || IsInt64())
+            {
+                long lv;
+                if (!long.TryParse(value_, out lv))
+                    lv = 0;
+                if (lv <= double.MaxValue)
+                    value = (float)lv;
+            }
+            else if (IsBool())
+            {
+                value = AsBool() ? 1 : 0;
             }
             return value;
         }
 
         /// <summary>
         /// 转换为布尔型
-        /// 支持源类型：bool,string, byte[]
+        /// 支持源类型：bool,string,int,long, byte[]
         /// </summary>
         /// <returns>失败返回false</returns>
         public bool AsBool()
@@ -415,7 +463,11 @@ namespace XTC.oelMVCS
             bool value = false;
             if (IsBool() || IsString())
             {
-                return value_.Equals("true");
+                value = value_.Equals("true");
+            }
+            else if(IsInt32() || IsInt64())
+            {
+                value = !value_.Equals("0");
             }
             else if (IsBytes())
             {
@@ -805,7 +857,7 @@ namespace XTC.oelMVCS
             sb.Append("}");
             return sb.ToString();
         }
-        
+
         private static string int64MapToString(Dictionary<string, long> _value)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();

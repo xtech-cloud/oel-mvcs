@@ -8,23 +8,23 @@ namespace test
     {
         static void Main(string[] args)
         {
-            testAny2();
+            testAny1();
         }
 
         static void testAny1()
         {
 
             Console.WriteLine("int32 ------------------------------------------------");
-            Any int32 = Any.FromInt32(int.MaxValue);
+            Any int32 = Any.FromInt32(10);
             print(int32);
             Console.WriteLine("int64 ------------------------------------------------");
-            Any int64 = Any.FromInt64(long.MaxValue);
+            Any int64 = Any.FromInt64(99999999999999);
             print(int64);
             Console.WriteLine("float32 ------------------------------------------------");
-            Any float32= Any.FromFloat32(float.MaxValue);
+            Any float32= Any.FromFloat32(10.1f);
             print(float32);
             Console.WriteLine("float64 ------------------------------------------------");
-            Any float64 = Any.FromFloat64(double.MaxValue);
+            Any float64 = Any.FromFloat64(99999999999.9);
             print(float64);
             Console.WriteLine("bool ------------------------------------------------");
             Any boolean  = Any.FromBool(true);
