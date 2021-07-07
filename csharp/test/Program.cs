@@ -4,11 +4,207 @@ using XTC.oelMVCS;
 
 namespace test
 {
+    class ConsoleLogger : Logger
+    {
+        protected override void trace(string _categoray, string _message)
+        {
+            Console.WriteLine(string.Format("TRACE [{0}] - {1}", _categoray, _message));
+        }
+        protected override void debug(string _categoray, string _message)
+        {
+            Console.WriteLine(string.Format("DEBUG [{0}] - {1}", _categoray, _message));
+        }
+        protected override void info(string _categoray, string _message)
+        {
+            Console.WriteLine(string.Format("INFO [{0}] - {1}", _categoray, _message));
+        }
+        protected override void warning(string _categoray, string _message)
+        {
+            Console.WriteLine(string.Format("WARNING [{0}] - {1}", _categoray, _message));
+        }
+        protected override void error(string _categoray, string _message)
+        {
+            Console.WriteLine(string.Format("ERROR [{0}] - {1}", _categoray, _message));
+        }
+        protected override void exception(System.Exception _exp)
+        {
+            Console.WriteLine(string.Format("EXCEPTION [{0}] - {1}", "EXP", _exp.Message));
+        }
+    }
+    class SimpleModel : Model
+    {
+        public class SimpleStatus : Status
+        {
+            public string uuid { get; set; }
+        }
+
+        private SimpleController controller { get; set; }
+        private SimpleStatus status
+        {
+            get
+            {
+                return status_ as SimpleStatus;
+            }
+        }
+
+        protected override void preSetup()
+        {
+            Error err;
+            status_ = spawnStatus<SimpleStatus>("SimpleStatus", out err);
+            controller = findController("SimpleController") as SimpleController;
+        }
+        
+        protected override void setup()
+        {
+            getLogger().Info("setup SimpleModel");
+        }
+
+        protected override void postDismantle()
+        {
+            Error err;
+            killStatus("SimpleStatus", out err);
+        }
+
+        public void UpdateSignin(Model.Status _reply, string _uuid)
+        {
+            controller.Signin(_reply, status, _uuid); 
+        }
+    }
+    class SimpleView : View
+    {
+        private SimpleService service { get; set; }
+        protected override void preSetup()
+        {
+            service = findService("SimpleService") as SimpleService;
+        }
+
+        protected override void setup()
+        {
+            getLogger().Info("setup SimpleView");
+        }
+
+        public void OnSigninClicked()
+        {
+            service.PostSignin("admin", "11223344");
+        }
+
+        public void PrintError(string _error)
+        {
+            getLogger().Error(_error);
+        }
+
+        public void PrintUUID(SimpleModel.SimpleStatus _status)
+        {
+            getLogger().Info(string.Format("uuid is {0}", _status.uuid));
+        }
+    }
+
+    class SimpleController : Controller
+    {
+        private SimpleView view { get; set; }
+        protected override void preSetup()
+        {
+            view = findView("SimpleView") as SimpleView;
+        }
+        protected override void setup()
+        {
+            getLogger().Info("setup SimpleController");
+        }
+        public void Signin(Model.Status _reply, SimpleModel.SimpleStatus _status, string _uuid)
+        {
+            if(_reply.getCode() != 0)
+            {
+                view.PrintError(_reply.getMessage());
+                return;
+            }
+            _status.uuid = _uuid;
+            view.PrintUUID(_status);
+        }
+    }
+
+    class SimpleService : Service
+    {
+        private SimpleModel model { get; set; }
+        protected override void preSetup()
+        {
+            model = findModel("SimpleModel") as SimpleModel;
+        }
+        protected override void setup()
+        {
+            getLogger().Info("setup SimpleService");
+        }
+
+        public void PostSignin(string _username, string _password)
+        {
+            Dictionary<string, Any> parameter = new Dictionary<string, Any>();
+            parameter["username"] = Any.FromString(_username);
+            parameter["password"] = Any.FromString(_password);
+            post("http://localhost/signin", parameter, (_reply) =>
+            {
+                Model.Status reply = Model.Status.New<Model.Status>(0, "");
+                string uuid = _reply;
+                model.UpdateSignin(reply, uuid);
+            }, (_err) =>
+            {
+                Model.Status reply = Model.Status.New<Model.Status>(_err.getCode(), _err.getMessage());
+                model.UpdateSignin(reply, "");
+            }, null);
+        }
+    }
+
+   
+
+
     class Program
     {
+        class SimpleMock
+        {
+            public static void MockProcessor(string _url, string _method, Dictionary<string, Any> _params, Service.OnReplyCallback _onReply, Service.OnErrorCallback _onError, Service.Options _options)
+            {
+                if (!_url.Equals("http://localhost/signin"))
+                {
+                    _onError(Error.NewAccessErr("404 not found"));
+                    return;
+                }
+                if(_params["username"].AsString().Equals("admin") && _params["password"].AsString().Equals("11223344"))
+                    _onReply("00000000001");
+                else
+                    _onError(Error.NewAccessErr("password is not matched"));
+            }
+        }
+
         static void Main(string[] args)
         {
-            testAny1();
+            //testAny1();
+            Framework framework = new Framework();
+            framework.setLogger(new ConsoleLogger());
+
+            framework.Initialize();
+
+            framework.getStaticPipe().RegisterModel("SimpleModel", new SimpleModel());
+            SimpleView simpleView = new SimpleView();
+            framework.getStaticPipe().RegisterView("SimpleView", simpleView);
+            framework.getStaticPipe().RegisterController("SimpleController", new SimpleController());
+            SimpleService service = new SimpleService();
+            service.useMock = true;
+            service.MockProcessor = SimpleMock.MockProcessor;
+            framework.getStaticPipe().RegisterService("SimpleService", service);
+
+            framework.Setup();
+
+            // 主循环
+            // 模拟登录按钮被点击时
+            {
+                simpleView.OnSigninClicked();
+            }
+
+            framework.Dismantle();
+            framework.getStaticPipe().CancelService("SimpleService");
+            framework.getStaticPipe().CancelController("SimpleController");
+            framework.getStaticPipe().CancelView("SimpleView");
+            framework.getStaticPipe().CancelModel("SimpleModel");
+
+            framework.Release();
         }
 
         static void testAny1()
@@ -21,57 +217,57 @@ namespace test
             Any int64 = Any.FromInt64(99999999999999);
             print(int64);
             Console.WriteLine("float32 ------------------------------------------------");
-            Any float32= Any.FromFloat32(10.1f);
+            Any float32 = Any.FromFloat32(10.1f);
             print(float32);
             Console.WriteLine("float64 ------------------------------------------------");
             Any float64 = Any.FromFloat64(99999999999.9);
             print(float64);
             Console.WriteLine("bool ------------------------------------------------");
-            Any boolean  = Any.FromBool(true);
+            Any boolean = Any.FromBool(true);
             print(boolean);
             Console.WriteLine("string ------------------------------------------------");
             Any str = Any.FromString("hello");
             print(str);
             Console.WriteLine("int32ary ------------------------------------------------");
-            Any int32ary = Any.FromInt32Ary(new int[] { int.MaxValue, int.MaxValue-1});
+            Any int32ary = Any.FromInt32Ary(new int[] { int.MaxValue, int.MaxValue - 1 });
             print(int32ary);
             Console.WriteLine("int64ary ------------------------------------------------");
-            Any int64ary = Any.FromInt64Ary(new long[] { long.MaxValue, long.MaxValue-1});
+            Any int64ary = Any.FromInt64Ary(new long[] { long.MaxValue, long.MaxValue - 1 });
             print(int64ary);
             Console.WriteLine("float32ary ------------------------------------------------");
-            Any float32ary = Any.FromFloat32Ary(new float[] { float.MaxValue, float.MaxValue/2});
+            Any float32ary = Any.FromFloat32Ary(new float[] { float.MaxValue, float.MaxValue / 2 });
             print(float32ary);
             Console.WriteLine("float64ary ------------------------------------------------");
-            Any float64ary = Any.FromFloat64Ary(new double[] { double.MaxValue, double.MaxValue/2});
+            Any float64ary = Any.FromFloat64Ary(new double[] { double.MaxValue, double.MaxValue / 2 });
             print(float64ary);
             Console.WriteLine("boolary ------------------------------------------------");
-            Any boolary = Any.FromBoolAry(new bool[] { true, false});
+            Any boolary = Any.FromBoolAry(new bool[] { true, false });
             print(boolary);
             Console.WriteLine("strinary ------------------------------------------------");
-            Any strary = Any.FromStringAry(new string[] { "hello", "world"});
+            Any strary = Any.FromStringAry(new string[] { "hello", "world" });
             print(strary);
             Console.WriteLine("int32map ------------------------------------------------");
             Dictionary<string, int> int32map_value = new Dictionary<string, int>();
             int32map_value["a"] = int.MaxValue;
-            int32map_value["b"] = -int.MaxValue/2;
+            int32map_value["b"] = -int.MaxValue / 2;
             Any int32map = Any.FromInt32Map(int32map_value);
             print(int32map);
             Console.WriteLine("int64map ------------------------------------------------");
             Dictionary<string, long> int64map_value = new Dictionary<string, long>();
             int64map_value["a"] = long.MaxValue;
-            int64map_value["b"] = -long.MaxValue/2;
+            int64map_value["b"] = -long.MaxValue / 2;
             Any int64map = Any.FromInt64Map(int64map_value);
             print(int64map);
             Console.WriteLine("float32map ------------------------------------------------");
             Dictionary<string, float> float32map_value = new Dictionary<string, float>();
             float32map_value["a"] = float.MaxValue;
-            float32map_value["b"] = -float.MaxValue/2;
+            float32map_value["b"] = -float.MaxValue / 2;
             Any float32map = Any.FromFloat32Map(float32map_value);
             print(float32map);
             Console.WriteLine("float64map ------------------------------------------------");
             Dictionary<string, double> float64map_value = new Dictionary<string, double>();
             float64map_value["a"] = double.MaxValue;
-            float64map_value["b"] = -double.MaxValue/2;
+            float64map_value["b"] = -double.MaxValue / 2;
             Any float64map = Any.FromFloat64Map(float64map_value);
             print(float64map);
             Console.WriteLine("boolmap ------------------------------------------------");

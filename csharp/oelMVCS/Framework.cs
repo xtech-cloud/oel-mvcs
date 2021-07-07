@@ -113,8 +113,6 @@ namespace XTC.oelMVCS
 
         private StaticPipe staticPipe_ = null;
         private DynamicPipe dynamicPipe_ = null;
-        public Config config_ = null;
-        public Logger logger_ = null;
         private Board board_ = null;
     }
 
