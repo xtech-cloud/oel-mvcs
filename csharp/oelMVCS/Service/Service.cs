@@ -165,7 +165,7 @@ namespace XTC.oelMVCS
             alias.method = _method;
             alias.useMock = _useMock;
             alias.parameter = _parameter;
-            aliasMap_[_alias] = new Alias();
+            aliasMap_[_alias] = alias;
         }
 
         /// <summary>
