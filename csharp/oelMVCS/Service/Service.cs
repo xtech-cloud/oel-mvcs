@@ -134,7 +134,7 @@ namespace XTC.oelMVCS
         /// <param name="_onReply">回复的回调方法</param>
         /// <param name="_onError">错误的回调方法</param>
         /// <param name="_options">选项字典</param>
-        protected void callAlias(string _alias, ParameterHandlerDelegate _parameterHandler, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        public void CallAlias(string _alias, ParameterHandlerDelegate _parameterHandler, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {
             Alias alias;
             if (null == aliasMap_ || !aliasMap_.TryGetValue(_alias, out alias))
