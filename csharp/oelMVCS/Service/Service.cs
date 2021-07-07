@@ -80,18 +80,25 @@ namespace XTC.oelMVCS
         /// <param name="_error">错误</param>
         public delegate void OnErrorCallback(Error _error);
 
-        /// <summary>json序列化委托定义</summary>
-        /// <param name="_params">参数字典</param>
-        public delegate string JsonPackDelegate(Dictionary<string, Any> _params);
-
-        /// json序列化委托
-        public static JsonPackDelegate jsonPack;
+        /// <summary>修改参数的委托定义</summary>
+        /// <param name="_error">错误</param>
+        public delegate void ParameterHandlerDelegate(Dictionary<string, Any> _params);
 
         /// Mock处理委托
         public MockProcessorDelegate MockProcessor;
 
         /// 是否使用mock
         public bool useMock = false;
+
+        private class Alias
+        {
+            public string uri { get; set; }
+            public string method { get; set; }
+            public bool useMock{ get; set; }
+            public Dictionary<string, Any> parameter { get; set; }
+        }
+        /// 别名列表
+        private Dictionary<string, Alias> aliasMap_ = null;
 
         /// <summary>
         /// 查找一个数据层
@@ -120,128 +127,123 @@ namespace XTC.oelMVCS
         }
 
         /// <summary>
-        /// RESTful的POST形式调用
+        /// 使用别名调用服务
         /// </summary>
-        /// <param name="_url">访问地址</param>
-        /// <param name="_params">参数字典</param>
+        /// <param name="_alias">别名</param>
+        /// <param name="_parameterHandler">参数修改委托</param>
         /// <param name="_onReply">回复的回调方法</param>
         /// <param name="_onError">错误的回调方法</param>
         /// <param name="_options">选项字典</param>
-        /// <returns>错误</returns>
-        protected Error post(string _url, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        protected void callAlias(string _alias, ParameterHandlerDelegate _parameterHandler, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {
-            try
+            Alias alias;
+            if (null == aliasMap_ || !aliasMap_.TryGetValue(_alias, out alias))
             {
-                if (useMock)
-                {
-                    if (null != MockProcessor)
-                        MockProcessor(_url, "POST", _params, _onReply, _onError, _options);
-                    else
-                        _onError(Error.NewNullErr("MockProcessor is null"));
-                }
-                else
-                    asyncRequest(_url, "POST", _params, _onReply, _onError, _options);
+                _onError(Error.NewAccessErr("alias not found"));
+                return;
             }
-            catch (System.Exception ex)
+            if(null != _parameterHandler)
             {
-                getLogger().Exception(ex);
-                return Error.NewException(ex);
+                _parameterHandler(alias.parameter);
             }
-            return Error.OK;
+            send(alias.uri, alias.method, alias.useMock, alias.parameter, _onReply, _onError, _options);
         }
 
         /// <summary>
-        /// RESTful的GET形式调用
+        /// 创建一个别名
         /// </summary>
-        /// <param name="_url">访问地址</param>
-        /// <param name="_params">参数字典</param>
-        /// <param name="_onReply">回复的回调方法</param>
-        /// <param name="_onError">错误的回调方法</param>
-        /// <param name="_options">选项字典</param>
-        /// <returns>错误</returns>
-        protected Error get(string _url, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        /// <param name="_alias">别名名称</param>
+        /// <param name="_url">对应的地址</param>
+        /// <param name="_method">对应的方法</param>
+        /// <param name="_useMock">是否使用模拟方式</param>
+        protected void createAlias(string _alias, string _url, string _method, bool _useMock, Dictionary<string, Any> _parameter)
         {
-            try
-            {
-                if (useMock)
-                {
-                    if (null != MockProcessor)
-                        MockProcessor(_url, "POST", _params, _onReply, _onError, _options);
-                    else
-                        _onError(Error.NewNullErr("MockProcessor is null"));
-                }
-                else
-                    asyncRequest(_url, "GET", _params, _onReply, _onError, _options);
-            }
-            catch (System.Exception ex)
-            {
-                getLogger().Exception(ex);
-                return Error.NewException(ex);
-            }
-            return Error.OK;
+            if (null == aliasMap_)
+                aliasMap_ = new Dictionary<string, Alias>();
+            Alias alias = new Alias();
+            alias.uri = _url;
+            alias.method = _method;
+            alias.useMock = _useMock;
+            alias.parameter = _parameter;
+            aliasMap_[_alias] = new Alias();
         }
 
         /// <summary>
-        /// RESTful的DELETE形式调用
+        /// 对send的RESTful的POST封装
         /// </summary>
         /// <param name="_url">访问地址</param>
         /// <param name="_params">参数字典</param>
         /// <param name="_onReply">回复的回调方法</param>
         /// <param name="_onError">错误的回调方法</param>
         /// <param name="_options">选项字典</param>
-        /// <returns>错误</returns>
-        protected Error delete(string _url, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        protected void post(string _url, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {
-            try
-            {
-                if (useMock)
-                {
-                    if (null != MockProcessor)
-                        MockProcessor(_url, "POST", _params, _onReply, _onError, _options);
-                    else
-                        _onError(Error.NewNullErr("MockProcessor is null"));
-                }
-                else
-                    asyncRequest(_url, "DELETE", _params, _onReply, _onError, _options);
-            }
-            catch (System.Exception ex)
-            {
-                getLogger().Exception(ex);
-                return Error.NewException(ex);
-            }
-            return Error.OK;
+            send(_url, "POST", useMock, _params, _onReply, _onError, _options);
         }
 
         /// <summary>
-        /// RESTful的PUT形式调用
+        /// 对send的RESTful的GET封装
         /// </summary>
         /// <param name="_url">访问地址</param>
         /// <param name="_params">参数字典</param>
         /// <param name="_onReply">回复的回调方法</param>
         /// <param name="_onError">错误的回调方法</param>
         /// <param name="_options">选项字典</param>
-        /// <returns>错误</returns>
-        protected Error put(string _url, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        protected void get(string _url, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {
-            try
-            {
-                if (useMock)
-                {
-                    if (null != MockProcessor)
-                        MockProcessor(_url, "POST", _params, _onReply, _onError, _options);
-                    else
-                        _onError(Error.NewNullErr("MockProcessor is null"));
-                }
-                else
-                    asyncRequest(_url, "PUT", _params, _onReply, _onError, _options);
-            }
-            catch (System.Exception ex)
-            {
-                getLogger().Exception(ex);
-                return Error.NewException(ex);
-            }
-            return Error.OK;
+            send(_url, "GET", useMock, _params, _onReply, _onError, _options);
         }
+
+        /// <summary>
+        /// 对send的RESTful的DELETE封装
+        /// </summary>
+        /// <param name="_url">访问地址</param>
+        /// <param name="_params">参数字典</param>
+        /// <param name="_onReply">回复的回调方法</param>
+        /// <param name="_onError">错误的回调方法</param>
+        /// <param name="_options">选项字典</param>
+        protected void delete(string _url, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        {
+            send(_url, "DELETE", useMock, _params, _onReply, _onError, _options);
+        }
+
+        /// <summary>
+        /// 对send的RESTful的PUT封装
+        /// </summary>
+        /// <param name="_url">访问地址</param>
+        /// <param name="_params">参数字典</param>
+        /// <param name="_onReply">回复的回调方法</param>
+        /// <param name="_onError">错误的回调方法</param>
+        /// <param name="_options">选项字典</param>
+        protected void put(string _url, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        {
+            send(_url, "PUT", useMock, _params, _onReply, _onError, _options);
+        }
+
+        /// <summary>
+        /// 发送请求
+        /// </summary>
+        /// <param name="_url">访问地址</param>
+        /// <param name="_params">参数字典</param>
+        /// <param name="_onReply">回复的回调方法</param>
+        /// <param name="_onError">错误的回调方法</param>
+        /// <param name="_options">选项字典</param>
+        protected void send(string _url, string _method, bool _useMock, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        {
+            if (_useMock)
+            {
+                if (null == MockProcessor)
+                {
+                    _onError(Error.NewNullErr("MockProcessor is null"));
+                    return;
+                }
+
+                MockProcessor(_url, _method, _params, _onReply, _onError, _options);
+                return;
+            }
+            asyncRequest(_url, _method, _params, _onReply, _onError, _options);
+        }
+
 
 
         /// <summary>
