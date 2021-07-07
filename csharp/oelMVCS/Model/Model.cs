@@ -52,6 +52,16 @@ namespace XTC.oelMVCS
                 unit_.postDismantle();
             }
 
+            public void AddObserver(string _action, System.Action<Status, object> _handler)
+            {
+                unit_.addObserver(_action, _handler);
+            }
+
+            public void RemoveObserver(string _action, System.Action<Status, object> _handler)
+            {
+                unit_.removeObserver(_action, _handler);
+            }
+
             private Model unit_ = null;
         }
         #endregion
@@ -121,15 +131,39 @@ namespace XTC.oelMVCS
 
         protected Dictionary<string, Any> property_ = null;
         protected bool isAllowSetProperty_ = true;
+        protected Dictionary<string, List<System.Action<Status, object>>> observers_ = null;
 
 
         /// <summary>向视图层广播消息</summary>
+        /// 适用于状态发生变化后，通知外部
+        /// 在视图层使用addRouter和removeRouter
         /// <param name="_action">行为</param>
         /// <param name="_data">数据</param>
         public void Broadcast(string _action, object _data)
         {
             board_.getModelCenter().Broadcast(_action, status_, _data);
         }
+
+        /// <summary>向视图层冒泡</summary>
+        /// 适用于外部获取未发生变化的状态
+        /// 在视图层使用addObserver和removeObserver
+        /// <param name="_action">行为</param>
+        /// <param name="_data">数据</param>
+        public void Bubble(string _action, object _data)
+        {
+            if (null == observers_)
+                return;
+
+            List<System.Action<Status, object>> handlers;
+            if (!observers_.TryGetValue(_action, out handlers))
+                return;
+
+            foreach(var handler in handlers)
+            {
+                handler(status_, _data);
+            }
+        }
+
 
         public void SetProperty(string _key, Any _value)
         {
@@ -277,6 +311,31 @@ namespace XTC.oelMVCS
         protected virtual void postDismantle()
         {
 
+        }
+
+        private void addObserver(string _action, System.Action<Status, object> _handler)
+        {
+            if (null == _handler)
+                throw new System.ArgumentNullException("_handler is null");
+
+            if (null == observers_)
+                observers_ = new Dictionary<string, List<System.Action<Status, object>>>();
+            if (!observers_.ContainsKey(_action))
+                observers_[_action] = new List<System.Action<Status, object>>();
+            observers_[_action].Add(_handler);
+        }
+
+        private void removeObserver(string _action, System.Action<Status, object> _handler)
+        {
+            if (null == _handler)
+                throw new System.ArgumentNullException("_handler is null");
+
+            if (null == observers_)
+                return;
+            List<System.Action<Status, object>> handlers;
+            if (!observers_.TryGetValue(_action, out handlers))
+                return;
+            handlers.Remove(_handler);
         }
 
         private Board board_ = null;

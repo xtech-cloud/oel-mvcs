@@ -151,14 +151,54 @@ namespace XTC.oelMVCS
 
 
         /// <summary>
-        /// 行为路由，使用指定函数处理指定行为
+        /// 添加行为路由，使用指定函数处理指定行为
         /// 设置了路由的行为，在数据层进行广播时，会自动调用相应的处理函数
         /// </summary>
         /// <param name="_action">需要处理的行为</param>
-        /// <param name="_action">行为对应的处理函数</param>
-        protected void route(string _action, Action<Model.Status, object> _handler)
+        /// <param name="_handler">行为对应的处理函数</param>
+        protected void addRouter(string _action, Action<Model.Status, object> _handler)
         {
             handlers_[_action] = _handler;
+        }
+
+        /// <summary>
+        /// 移除行为路由
+        /// </summary>
+        /// <param name="_action">需要处理的行为</param>
+        protected void removeRouter(string _action)
+        {
+            if (!handlers_.ContainsKey(_action))
+                return;
+            handlers_.Remove(_action);
+        }
+
+
+        /// <summary>
+        /// 观察一个数据层
+        /// 当数据层冒泡时，会自动调用相应的处理函数
+        /// </summary>
+        /// <param name="_uuid">model的uuid</param>
+        /// <param name="_action">行为</param>
+        protected void addObserver(string _uuid, string _action, Action<Model.Status, object> _handler)
+        {
+            Model.Inner inner = board_.getModelCenter().FindUnit(_uuid);
+            if (null == inner)
+                return;
+            inner.AddObserver(_action, _handler);
+        }
+
+        /// <summary>
+        /// 取消观察一个数据层
+        /// 当数据层冒泡时，会自动调用相应的处理函数
+        /// </summary>
+        /// <param name="_uuid">model的uuid</param>
+        /// <param name="_action">行为</param>
+        protected void removeObserver(string _uuid, string _action, Action<Model.Status, object> _handler)
+        {
+            Model.Inner inner = board_.getModelCenter().FindUnit(_uuid);
+            if (null == inner)
+                return;
+            inner.RemoveObserver(_action, _handler);
         }
 
         /// <summary>
