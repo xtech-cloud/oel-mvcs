@@ -933,7 +933,8 @@ namespace XTC.oelMVCS
             {
                 string aryStr = value_.Remove(0, 1);
                 aryStr = aryStr.Remove(aryStr.Length - 1, 1);
-                foreach (string e in aryStr.Split(','))
+                
+                foreach (string e in aryStr.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries))
                 {
                     string value = e.Trim();
                     if (value.StartsWith("\"") && value.EndsWith("\""))
@@ -954,7 +955,7 @@ namespace XTC.oelMVCS
             {
                 string aryStr = value_.Remove(0, 1);
                 aryStr = aryStr.Remove(aryStr.Length - 1, 1);
-                foreach (string e in aryStr.Split(','))
+                foreach (string e in aryStr.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries))
                 {
                     string value = e.Trim();
                     if (value.StartsWith("\"") && value.EndsWith("\""))
