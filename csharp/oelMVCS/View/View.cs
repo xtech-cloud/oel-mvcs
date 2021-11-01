@@ -56,7 +56,7 @@ namespace XTC.oelMVCS
             public Error Handle(string _action, Model.Status _status, object _data)
             {
                 if (!unit_.handlers_.ContainsKey(_action))
-                    return Error.NewParamErr("handler {0} exists", _action);
+                    return Error.NewParamErr("handler {0} not found", _action);
                 unit_.handlers_[_action](_status, _data);
                 return Error.OK;
             }

@@ -16,15 +16,12 @@ namespace XTC.oelMVCS
             return fields_.ContainsKey(_field);
         }
 
-        public Any this[string _aKey]
+        public Any getField(string _aKey)
         {
-            get
-            {
-                Any field;
-                if (fields_.TryGetValue(_aKey, out field))
-                    return field;
-                return new Any();
-            }
+            Any field;
+            if (fields_.TryGetValue(_aKey, out field))
+                return field;
+            return new Any();
         }
     }
 }//namespace

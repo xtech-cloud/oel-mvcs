@@ -97,8 +97,6 @@ namespace XTC.oelMVCS
             public bool useMock{ get; set; }
             public Dictionary<string, Any> parameter { get; set; }
         }
-        /// 别名列表
-        private Dictionary<string, Alias> aliasMap_ = null;
 
         /// <summary>
         /// 查找一个数据层
@@ -330,6 +328,8 @@ namespace XTC.oelMVCS
 
         }
 
+        /// 别名列表
+        private Dictionary<string, Alias> aliasMap_ = null;
         private Board board_ = null;
     }
 }//namespace

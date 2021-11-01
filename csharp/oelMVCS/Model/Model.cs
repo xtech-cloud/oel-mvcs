@@ -129,9 +129,6 @@ namespace XTC.oelMVCS
         #endregion
 
 
-        protected Dictionary<string, Any> property_ = null;
-        protected bool isAllowSetProperty_ = true;
-        protected Dictionary<string, List<System.Action<Status, object>>> observers_ = null;
 
 
         /// <summary>向视图层广播消息</summary>
@@ -338,6 +335,9 @@ namespace XTC.oelMVCS
             handlers.Remove(_handler);
         }
 
+        protected Dictionary<string, Any> property_ = null;
+        protected bool isAllowSetProperty_ = true;
+        private Dictionary<string, List<System.Action<Status, object>>> observers_ = null;
         private Board board_ = null;
     }
 }//namespace

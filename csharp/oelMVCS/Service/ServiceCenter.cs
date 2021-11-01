@@ -11,18 +11,18 @@ namespace XTC.oelMVCS
 
         public Error Register(string _uuid, Service.Inner _inner)
         {
-            board_.getLogger().Info("register {0}", _uuid);
+            board_.getLogger().Info("register service {0}", _uuid);
             if (units_.ContainsKey(_uuid))
-                return Error.NewAccessErr("{0} exists", _uuid);
+                return Error.NewAccessErr("service {0} exists", _uuid);
             units_[_uuid] = _inner;
             return Error.OK;
         }
 
         public Error Cancel(string _uuid)
         {
-            board_.getLogger().Info("cancel {0}", _uuid);
+            board_.getLogger().Info("cancel service {0}", _uuid);
             if (!units_.ContainsKey(_uuid))
-                return Error.NewAccessErr("{0} not found", _uuid);
+                return Error.NewAccessErr("service {0} not found", _uuid);
             units_.Remove(_uuid);
             return Error.OK;
         }
@@ -36,6 +36,7 @@ namespace XTC.oelMVCS
 
         public void PreSetup()
         {
+            board_.getLogger().Info("perSetup services");
             foreach (Service.Inner inner in units_.Values)
             {
                 inner.PreSetup();
@@ -44,6 +45,7 @@ namespace XTC.oelMVCS
 
         public void Setup()
         {
+            board_.getLogger().Info("setup services");
             foreach (Service.Inner inner in units_.Values)
             {
                 inner.Setup();
@@ -52,6 +54,7 @@ namespace XTC.oelMVCS
 
         public void PostSetup()
         {
+            board_.getLogger().Info("postSetup services");
             foreach (Service.Inner inner in units_.Values)
             {
                 inner.PostSetup();
@@ -60,6 +63,7 @@ namespace XTC.oelMVCS
 
         public void PreDismantle()
         {
+            board_.getLogger().Info("preDismantle services");
             foreach (Service.Inner inner in units_.Values)
             {
                 inner.PreDismantle();
@@ -68,6 +72,7 @@ namespace XTC.oelMVCS
 
         public void Dismantle()
         {
+            board_.getLogger().Info("dismantle services");
             foreach (Service.Inner inner in units_.Values)
             {
                 inner.Dismantle();
@@ -76,6 +81,7 @@ namespace XTC.oelMVCS
 
         public void PostDismantle()
         {
+            board_.getLogger().Info("postDismantle services");
             foreach (Service.Inner inner in units_.Values)
             {
                 inner.PostDismantle();
