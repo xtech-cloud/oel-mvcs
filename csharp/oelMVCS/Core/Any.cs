@@ -666,7 +666,7 @@ namespace XTC.oelMVCS
 
         public object AsObject()
         {
-            return value_;
+            return obj_;
         }
 
         private byte[] int32ToBytes(int _value)
