@@ -19,18 +19,18 @@ namespace XTC.oelMVCS
 
         public Error Register(string _uuid, View.Inner _inner)
         {
-            board_.getLogger().Info("register service {0}", _uuid);
+            board_.getLogger().Info("register view {0}", _uuid);
             if (units_.ContainsKey(_uuid))
-                return Error.NewAccessErr("service {0} exists", _uuid);
+                return Error.NewAccessErr("view {0} exists", _uuid);
             units_[_uuid] = _inner;
             return Error.OK;
         }
 
         public Error Cancel(string _uuid)
         {
-            board_.getLogger().Info("cancel service {0}", _uuid);
+            board_.getLogger().Info("cancel view {0}", _uuid);
             if (!units_.ContainsKey(_uuid))
-                return Error.NewAccessErr("service {0} not found", _uuid);
+                return Error.NewAccessErr("view {0} not found", _uuid);
             units_.Remove(_uuid);
             return Error.OK;
         }
