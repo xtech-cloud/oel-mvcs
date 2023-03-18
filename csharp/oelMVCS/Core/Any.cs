@@ -1,36 +1,45 @@
+/********************************************************************
+     Copyright (c) XTechCloud
+     All rights reserved.
+*********************************************************************/
+
 using System.Collections.Generic;
 
 namespace XTC.oelMVCS
 {
+    /// <summary>
+    /// 使用字符串作为底层数据的任意类型
+    /// 支持不同类型之间直接转换
+    /// </summary>
     public class Any
     {
         public enum Tag
         {
-            NULL = 0,
-            StringValue = 1,
-            Int32Value = 2,
-            Int64Value = 3,
-            Float32Value = 4,
-            Float64Value = 5,
-            BoolValue = 6,
-            BytesValue = 7,
-            StringAryValue = 11,
-            Int32AryValue = 12,
-            Int64AryValue = 13,
-            Float32AryValue = 14,
-            Float64AryValue = 15,
-            BoolAryValue = 16,
-            StringMapValue = 21,
-            Int32MapValue = 22,
-            Int64MapValue = 23,
-            Float32MapValue = 24,
-            Float64MapValue = 25,
-            BoolMapValue = 26,
-            ObjectValue = 99
+            NULL = 0,               // 空值
+            StringValue = 1,        // 字符型
+            Int32Value = 2,         // 32位整型
+            Int64Value = 3,         // 64位整型
+            Float32Value = 4,       // 32位浮点型
+            Float64Value = 5,       // 64位浮点型
+            BoolValue = 6,          // 布尔型
+            BytesValue = 7,         // 字节数组
+            StringAryValue = 11,    // 字符型数组
+            Int32AryValue = 12,     // 32位整型数组
+            Int64AryValue = 13,     // 64位整型数组
+            Float32AryValue = 14,   // 32位浮点型数组
+            Float64AryValue = 15,   // 64位浮点型数组
+            BoolAryValue = 16,      // 布尔型数组
+            StringMapValue = 21,    // 字符型映射表
+            Int32MapValue = 22,     // 32位整型映射表
+            Int64MapValue = 23,     // 64位整型映射表
+            Float32MapValue = 24,   // 32位浮点型映射表
+            Float64MapValue = 25,   // 64位浮点型映射表
+            BoolMapValue = 26,      // 布尔型映射表
+            ObjectValue = 99        // 对象型
         }
 
         private string value_ = "";
-        private object obj_ = null;
+        private object? obj_ = null;
         private Tag tag_ = Tag.NULL;
 
         public Any()
@@ -161,6 +170,7 @@ namespace XTC.oelMVCS
             Any any = new Any();
             any.tag_ = Tag.BytesValue;
             any.obj_ = null;
+            //TODO HEX
             any.value_ = System.Convert.ToBase64String(_value);
             return any;
         }
@@ -664,7 +674,7 @@ namespace XTC.oelMVCS
             return value;
         }
 
-        public object AsObject()
+        public object? AsObject()
         {
             return obj_;
         }

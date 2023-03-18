@@ -1,4 +1,9 @@
-﻿using System.Collections.Generic;
+﻿/********************************************************************
+     Copyright (c) XTechCloud
+     All rights reserved.
+*********************************************************************/
+
+using System.Collections.Generic;
 
 namespace XTC.oelMVCS
 {
@@ -18,8 +23,7 @@ namespace XTC.oelMVCS
 
         public Any getField(string _aKey)
         {
-            Any field;
-            if (fields_.TryGetValue(_aKey, out field))
+            if (fields_.TryGetValue(_aKey, out Any field))
                 return field;
             return new Any();
         }

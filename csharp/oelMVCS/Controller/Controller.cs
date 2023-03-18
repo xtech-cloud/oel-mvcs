@@ -1,4 +1,10 @@
-﻿
+﻿/********************************************************************
+     Copyright (c) XTechCloud
+     All rights reserved.
+*********************************************************************/
+
+using System.Collections.Generic;
+
 namespace XTC.oelMVCS
 {
     /// <summary>
@@ -8,9 +14,9 @@ namespace XTC.oelMVCS
     {
         #region
         // 内部类，用于接口隔离,隐藏Controller无需暴露给外部的公有方法
-        public class Inner
+        internal class Inner
         {
-            public Inner(Controller _unit, Board _board)
+            internal Inner(Controller _unit, Board _board)
             {
                 unit_ = _unit;
                 unit_.board_ = _board;
@@ -51,21 +57,57 @@ namespace XTC.oelMVCS
                 unit_.postDismantle();
             }
 
-            private Controller unit_ = null;
+            private Controller unit_;
         }
         #endregion
+
+        public Controller(string _uid)
+        {
+            uid_ = _uid;
+        }
+
+        public string getUID()
+        {
+            return uid_;
+        }
+
+        /// <summary>
+        /// 设置用户数据
+        /// </summary>
+        /// <param name="_key">键</param>
+        /// <param name="_value">值，为空时删除对应的键</param>
+        public void setUserData(string _key, UserData? _value)
+        {
+            if (null == _value)
+            {
+                if (userDataS_.ContainsKey(_key))
+                    userDataS_.Remove(_key);
+                return;
+            }
+            userDataS_[_key] = _value;
+        }
+
+        /// <summary>
+        /// 获取用户数据
+        /// </summary>
+        /// <param name="_key">键</param>
+        /// <returns>不存在时返回空</returns>
+        public UserData? getUserData(string _key)
+        {
+            if (!userDataS_.ContainsKey(_key))
+                return null;
+            return userDataS_[_key];
+        }
 
         /// <summary>
         /// 查找一个数据层
         /// </summary>
         /// <param name="_uuid"> 数据层唯一识别码</param>
         /// <returns>找到的数据层</returns>
-        protected Model findModel(string _uuid)
+        protected Model? findModel(string _uuid)
         {
-            Model.Inner inner = board_.getModelCenter().FindUnit(_uuid);
-            if (null == inner)
-                return null;
-            return inner.getUnit();
+            return board_!.getModelCenter().FindUnit(_uuid)?.getUnit();
+
         }
 
         /// <summary>
@@ -73,12 +115,9 @@ namespace XTC.oelMVCS
         /// </summary>
         /// <param name="_uuid"> 视图层唯一识别码</param>
         /// <returns>找到的视图层</returns>
-        protected View findView(string _uuid)
+        protected View? findView(string _uuid)
         {
-            View.Inner inner = board_.getViewCenter().FindUnit(_uuid);
-            if (null == inner)
-                return null;
-            return inner.getUnit();
+            return board_!.getViewCenter().FindUnit(_uuid)?.getUnit();
         }
 
         /// <summary>
@@ -86,12 +125,9 @@ namespace XTC.oelMVCS
         /// </summary>
         /// <param name="_uuid"> 控制层唯一识别码</param>
         /// <returns>找到的控制层</returns>
-        protected Controller findController(string _uuid)
+        protected Controller? findController(string _uuid)
         {
-            Controller.Inner inner = board_.getControllerCenter().FindUnit(_uuid);
-            if (null == inner)
-                return null;
-            return inner.getUnit();
+            return board_!.getControllerCenter().FindUnit(_uuid)?.getUnit();
         }
 
         /// <summary>
@@ -100,9 +136,9 @@ namespace XTC.oelMVCS
         /// <returns>
         /// 日志实列
         /// </returns>
-        protected Logger getLogger()
+        protected Logger? getLogger()
         {
-            return board_.getLogger();
+            return board_!.getLogger();
         }
 
         /// <summary>
@@ -111,9 +147,9 @@ namespace XTC.oelMVCS
         /// <returns>
         /// 配置实列
         /// </returns>
-        protected Config getConfig()
+        protected Config? getConfig()
         {
-            return board_.getConfig();
+            return board_!.getConfig();
         }
 
         /// <summary>
@@ -164,6 +200,8 @@ namespace XTC.oelMVCS
 
         }
 
-        private Board board_ = null;
+        private Board? board_;
+        private string uid_;
+        private Dictionary<string, UserData> userDataS_ = new Dictionary<string, UserData>();
     }
 }//namespace MVCS

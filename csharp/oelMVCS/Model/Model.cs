@@ -1,4 +1,9 @@
-﻿using System.Collections.Generic;
+﻿/********************************************************************
+     Copyright (c) XTechCloud
+     All rights reserved.
+*********************************************************************/
+
+using System.Collections.Generic;
 
 namespace XTC.oelMVCS
 {
@@ -9,9 +14,9 @@ namespace XTC.oelMVCS
     {
         #region
         // 内部类，用于接口隔离,隐藏Model无需暴露给外部的公有方法
-        public class Inner
+        internal class Inner
         {
-            public Inner(Model _unit, Board _board)
+            internal Inner(Model _unit, Board _board)
             {
                 unit_ = _unit;
                 unit_.board_ = _board;
@@ -52,17 +57,7 @@ namespace XTC.oelMVCS
                 unit_.postDismantle();
             }
 
-            public void AddObserver(string _action, System.Action<Status, object> _handler)
-            {
-                unit_.addObserver(_action, _handler);
-            }
-
-            public void RemoveObserver(string _action, System.Action<Status, object> _handler)
-            {
-                unit_.removeObserver(_action, _handler);
-            }
-
-            private Model unit_ = null;
+            private Model unit_;
         }
         #endregion
 
@@ -71,7 +66,7 @@ namespace XTC.oelMVCS
         public class Status
         {
             // 内部工厂，用于赋值私有成员
-            public class Factory
+            internal class Factory
             {
                 public T New<T>(Board _board, string _uuid) where T : Status, new()
                 {
@@ -114,89 +109,77 @@ namespace XTC.oelMVCS
 
             /// <summary> 访问数据中心中的已注册状态 </summary>
             /// <param name="_uuid"> 状态的唯一识别码 </param>
-            public Status Access(string _uuid)
+            public Status? Access(string _uuid)
             {
                 if (string.IsNullOrEmpty(_uuid))
                     return null;
-                return board_.getModelCenter().FindStatus(_uuid);
+                return board_!.getModelCenter().FindStatus(_uuid);
             }
 
             protected int code_ = 0;
             protected string message_ = "";
             private string uuid_ = "";
-            private Board board_ = null;
+            private Board? board_;
         }
         #endregion
 
 
+        public Model(string _uid)
+        {
+            uid_ = _uid;
+        }
 
+        public string getUID()
+        {
+            return uid_;
+        }
 
-        /// <summary>向视图层广播消息</summary>
+        /// <summary>
+        /// 设置用户数据
+        /// </summary>
+        /// <param name="_key">键</param>
+        /// <param name="_value">值，为空时删除对应的键</param>
+        public void setUserData(string _key, UserData? _value)
+        {
+            if (null == _value)
+            {
+                if (userDataS_.ContainsKey(_key))
+                    userDataS_.Remove(_key);
+                return;
+            }
+            userDataS_[_key] = _value;
+        }
+
+        /// <summary>
+        /// 获取用户数据
+        /// </summary>
+        /// <param name="_key">键</param>
+        /// <returns>不存在时返回空</returns>
+        public UserData? getUserData(string _key)
+        {
+            if (!userDataS_.ContainsKey(_key))
+                return null;
+            return userDataS_[_key];
+        }
+
+        /// <summary>向视图层发布消息</summary>
         /// 适用于状态发生变化后，通知外部
-        /// 在视图层使用addRouter和removeRouter
-        /// <param name="_action">行为</param>
+        /// 在视图层使用addSubscriber和removeSubscriber
+        /// <param name="_message">消息</param>
         /// <param name="_data">数据</param>
-        public void Broadcast(string _action, object _data)
+        public void Publish(string _message, object _data)
         {
-            board_.getModelCenter().Broadcast(_action, status_, _data);
+            board_!.getModelCenter()!.Publish(_message, status_, _data);
         }
-
-        /// <summary>向视图层冒泡</summary>
-        /// 适用于外部获取未发生变化的状态
-        /// 在视图层使用addObserver和removeObserver
-        /// <param name="_action">行为</param>
-        /// <param name="_data">数据</param>
-        public void Bubble(string _action, object _data)
-        {
-            if (null == observers_)
-                return;
-
-            List<System.Action<Status, object>> handlers;
-            if (!observers_.TryGetValue(_action, out handlers))
-                return;
-
-            foreach(var handler in handlers)
-            {
-                handler(status_, _data);
-            }
-        }
-
-
-        public void SetProperty(string _key, Any _value)
-        {
-            if (null == property_)
-                return;
-            if (!isAllowSetProperty_)
-                throw new System.MethodAccessException("Not allowed to set a property, the isAllowSetProperty_ is false");
-
-            property_[_key] = _value;
-        }
-
-
-        public Any GetProperty(string _key)
-        {
-            if (null == property_)
-                return new Any();
-            Any value;
-            if(!property_.TryGetValue(_key, out value))
-            {
-                value = new Any();
-            }
-            return value;
-        }
-
 
         /// <summary>
         /// 查找一个数据层
         /// </summary>
         /// <param name="_uuid"> 数据层唯一识别码</param>
         /// <returns>找到的数据层</returns>
-        protected Model findModel(string _uuid)
+        protected Model? findModel(string _uuid)
         {
-            Model.Inner inner = board_.getModelCenter().FindUnit(_uuid);
-            if (null == inner)
-                return null;
-            return inner.getUnit();
+            return board_!.getModelCenter().FindUnit(_uuid)?.getUnit();
         }
 
         /// <summary>
@@ -204,12 +187,10 @@ namespace XTC.oelMVCS
         /// </summary>
         /// <param name="_uuid"> 控制层唯一识别码</param>
         /// <returns>找到的控制层</returns>
-        protected Controller findController(string _uuid)
+        protected Controller? findController(string _uuid)
         {
-            Controller.Inner inner = board_.getControllerCenter().FindUnit(_uuid);
-            if (null == inner)
-                return null;
-            return inner.getUnit();
+            return board_!.getControllerCenter().FindUnit(_uuid)?.getUnit();
+
         }
 
         /// <summary>
@@ -218,11 +199,11 @@ namespace XTC.oelMVCS
         /// <param name="_uuid">状态唯一识别码</param>
         /// <param name="_err">错误</param>
         /// <returns>状态<returns>
-        protected Model.Status spawnStatus<T>(string _uuid, out Error _err) where T : Model.Status, new()
+        protected Model.Status? spawnStatus<T>(string _uuid, out Error _err) where T : Model.Status, new()
         {
             Model.Status.Factory factory = new Model.Status.Factory();
-            Status status = factory.New<T>(board_, _uuid);
-            _err = board_.getModelCenter().PushStatus(_uuid, status);
+            Status status = factory.New<T>(board_!, _uuid);
+            _err = board_!.getModelCenter().PushStatus(_uuid, status);
             if (Error.IsOK(_err))
                 return status;
             return null;
@@ -235,10 +216,10 @@ namespace XTC.oelMVCS
         /// <param name="_err">错误</param>
         protected void killStatus(string _uuid, out Error _err)
         {
-            _err = board_.getModelCenter().PopStatus(_uuid);
+            _err = board_!.getModelCenter().PopStatus(_uuid);
         }
 
-        protected Status status_ = null;
+        protected Status? status_;
 
         /// <summary>
         /// 获取日志
@@ -246,9 +227,9 @@ namespace XTC.oelMVCS
         /// <returns>
         /// 日志实列
         /// </returns>
-        protected Logger getLogger()
+        protected Logger? getLogger()
         {
-            return board_.getLogger();
+            return board_!.getLogger();
         }
 
         /// <summary>
@@ -257,9 +238,9 @@ namespace XTC.oelMVCS
         /// <returns>
         /// 配置实列
         /// </returns>
-        protected Config getConfig()
+        protected Config? getConfig()
         {
-            return board_.getConfig();
+            return board_!.getConfig();
         }
 
         /// <summary>
@@ -310,34 +291,13 @@ namespace XTC.oelMVCS
 
         }
 
-        private void addObserver(string _action, System.Action<Status, object> _handler)
+        internal void emit(System.Action<Status?, object> _slot, object _data)
         {
-            if (null == _handler)
-                throw new System.ArgumentNullException("_handler is null");
-
-            if (null == observers_)
-                observers_ = new Dictionary<string, List<System.Action<Status, object>>>();
-            if (!observers_.ContainsKey(_action))
-                observers_[_action] = new List<System.Action<Status, object>>();
-            observers_[_action].Add(_handler);
+            _slot(status_, _data);
         }
 
-        private void removeObserver(string _action, System.Action<Status, object> _handler)
-        {
-            if (null == _handler)
-                throw new System.ArgumentNullException("_handler is null");
-
-            if (null == observers_)
-                return;
-            List<System.Action<Status, object>> handlers;
-            if (!observers_.TryGetValue(_action, out handlers))
-                return;
-            handlers.Remove(_handler);
-        }
-
-        protected Dictionary<string, Any> property_ = null;
-        protected bool isAllowSetProperty_ = true;
-        private Dictionary<string, List<System.Action<Status, object>>> observers_ = null;
-        private Board board_ = null;
+        private Board? board_;
+        private string uid_;
+        private Dictionary<string, UserData> userDataS_ = new Dictionary<string, UserData>();
     }
 }//namespace

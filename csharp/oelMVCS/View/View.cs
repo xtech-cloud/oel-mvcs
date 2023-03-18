@@ -1,4 +1,9 @@
-﻿using System;
+﻿/********************************************************************
+     Copyright (c) XTechCloud
+     All rights reserved.
+*********************************************************************/
+
+using System;
 using System.Collections.Generic;
 
 namespace XTC.oelMVCS
@@ -10,7 +15,7 @@ namespace XTC.oelMVCS
     {
         #region
         // 内部类，用于接口隔离,隐藏View无需暴露给外部的公有方法
-        public class Inner
+        internal class Inner
         {
             public Inner(View _unit, Board _board)
             {
@@ -53,15 +58,14 @@ namespace XTC.oelMVCS
                 unit_.postDismantle();
             }
 
-            public Error Handle(string _action, Model.Status _status, object _data)
+            public void RouteMessage(string _message, Model.Status? _status, object _data)
             {
-                if (!unit_.handlers_.ContainsKey(_action))
-                    return Error.NewParamErr("handler {0} not found", _action);
-                unit_.handlers_[_action](_status, _data);
-                return Error.OK;
+                if (!unit_.subscriberS_.ContainsKey(_message))
+                    return;
+                unit_.subscriberS_[_message](_status, _data);
             }
 
-            private View unit_ = null;
+            private View unit_;
         }
         #endregion
 
@@ -73,31 +77,79 @@ namespace XTC.oelMVCS
             {
             }
 
+            public Facade(string _uid)
+            {
+                uid_ = _uid;
+            }
+
+            public string getUID()
+            {
+                return uid_;
+            }
+
             public void setViewBridge(Bridge _value)
             {
                 viewBridge_ = _value;
             }
+
             public void setUiBridge(Bridge _value)
             {
                 uiBridge_ = _value;
             }
 
-            public Bridge getViewBridge()
+            public Bridge? getViewBridge()
             {
                 return viewBridge_;
             }
 
-            public Bridge getUiBridge()
+            public Bridge? getUiBridge()
             {
                 return uiBridge_;
             }
 
-            private Bridge viewBridge_;
-            private Bridge uiBridge_;
+            private Bridge? viewBridge_;
+            private Bridge? uiBridge_;
+            private string uid_;
         }
         #endregion
 
-        private Dictionary<string, Action<Model.Status, object>> handlers_ = new Dictionary<string, Action<Model.Status, object>>();
+        public View(string _uid)
+        {
+            uid_ = _uid;
+        }
+
+        public string getUID()
+        {
+            return uid_;
+        }
+
+        /// <summary>
+        /// 设置用户数据
+        /// </summary>
+        /// <param name="_key">键</param>
+        /// <param name="_value">值，为空时删除对应的键</param>
+        public void setUserData(string _key, UserData? _value)
+        {
+            if (null == _value)
+            {
+                if (userDataS_.ContainsKey(_key))
+                    userDataS_.Remove(_key);
+                return;
+            }
+            userDataS_[_key] = _value;
+        }
+
+        /// <summary>
+        /// 获取用户数据
+        /// </summary>
+        /// <param name="_key">键</param>
+        /// <returns>不存在时返回空</returns>
+        public UserData? getUserData(string _key)
+        {
+            if (!userDataS_.ContainsKey(_key))
+                return null;
+            return userDataS_[_key];
+        }
 
 
         /// <summary>
@@ -105,12 +157,9 @@ namespace XTC.oelMVCS
         /// </summary>
         /// <param name="_uuid"> 数据层唯一识别码</param>
         /// <returns>找到的数据层</returns>
-        protected Model findModel(string _uuid)
+        protected Model? findModel(string _uuid)
         {
-            Model.Inner inner = board_.getModelCenter().FindUnit(_uuid);
-            if (null == inner)
-                return null;
-            return inner.getUnit();
+            return board_!.getModelCenter().FindUnit(_uuid)?.getUnit();
         }
 
         /// <summary>
@@ -118,12 +167,10 @@ namespace XTC.oelMVCS
         /// </summary>
         /// <param name="_uuid"> 视图层唯一识别码</param>
         /// <returns>找到的视图层</returns>
-        protected View findView(string _uuid)
+        protected View? findView(string _uuid)
         {
-            View.Inner inner = board_.getViewCenter().FindUnit(_uuid);
-            if (null == inner)
-                return null;
-            return inner.getUnit();
+            return board_!.getViewCenter().FindUnit(_uuid)?.getUnit();
+
         }
 
         /// <summary>
@@ -131,12 +178,9 @@ namespace XTC.oelMVCS
         /// </summary>
         /// <param name="_uuid"> 服务层唯一识别码</param>
         /// <returns>找到的服务层</returns>
-        protected Service findService(string _uuid)
+        protected Service? findService(string _uuid)
         {
-            Service.Inner inner = board_.getServiceCenter().FindUnit(_uuid);
-            if (null == inner)
-                return null;
-            return inner.getUnit();
+            return board_!.getServiceCenter().FindUnit(_uuid)?.getUnit();
         }
 
         /// <summary>
@@ -144,61 +188,31 @@ namespace XTC.oelMVCS
         /// </summary>
         /// <param name="_uuid"> UI装饰唯一识别码</param>
         /// <returns>找到的UI装饰</returns>
-        protected View.Facade findFacade(string _uuid)
+        protected View.Facade? findFacade(string _uuid)
         {
-            return board_.getViewCenter().FindFacade(_uuid);
+            return board_!.getViewCenter().FindFacade(_uuid);
         }
 
 
         /// <summary>
-        /// 添加行为路由，使用指定函数处理指定行为
-        /// 设置了路由的行为，在数据层进行广播时，会自动调用相应的处理函数
+        /// 添加订阅者
         /// </summary>
-        /// <param name="_action">需要处理的行为</param>
-        /// <param name="_handler">行为对应的处理函数</param>
-        protected void addRouter(string _action, Action<Model.Status, object> _handler)
+        /// <param name="_message">订阅的消息</param>
+        /// <param name="_handler">处理函数</param>
+        protected void addSubscriber(string _message, Action<Model.Status?, object> _handler)
         {
-            handlers_[_action] = _handler;
+            subscriberS_[_message] = _handler;
         }
 
         /// <summary>
-        /// 移除行为路由
+        /// 移除订阅者
         /// </summary>
-        /// <param name="_action">需要处理的行为</param>
-        protected void removeRouter(string _action)
+        /// <param name="_message">订阅的消息</param>
+        protected void removeSubscriber(string _message)
         {
-            if (!handlers_.ContainsKey(_action))
+            if (!subscriberS_.ContainsKey(_message))
                 return;
-            handlers_.Remove(_action);
-        }
-
-
-        /// <summary>
-        /// 观察一个数据层
-        /// 当数据层冒泡时，会自动调用相应的处理函数
-        /// </summary>
-        /// <param name="_uuid">model的uuid</param>
-        /// <param name="_action">行为</param>
-        protected void addObserver(string _uuid, string _action, Action<Model.Status, object> _handler)
-        {
-            Model.Inner inner = board_.getModelCenter().FindUnit(_uuid);
-            if (null == inner)
-                return;
-            inner.AddObserver(_action, _handler);
-        }
-
-        /// <summary>
-        /// 取消观察一个数据层
-        /// 当数据层冒泡时，会自动调用相应的处理函数
-        /// </summary>
-        /// <param name="_uuid">model的uuid</param>
-        /// <param name="_action">行为</param>
-        protected void removeObserver(string _uuid, string _action, Action<Model.Status, object> _handler)
-        {
-            Model.Inner inner = board_.getModelCenter().FindUnit(_uuid);
-            if (null == inner)
-                return;
-            inner.RemoveObserver(_action, _handler);
+            subscriberS_.Remove(_message);
         }
 
         /// <summary>
@@ -207,9 +221,9 @@ namespace XTC.oelMVCS
         /// <returns>
         /// 日志实列
         /// </returns>
-        protected Logger getLogger()
+        protected Logger? getLogger()
         {
-            return board_.getLogger();
+            return board_!.getLogger();
         }
 
         /// <summary>
@@ -218,9 +232,9 @@ namespace XTC.oelMVCS
         /// <returns>
         /// 配置实列
         /// </returns>
-        protected Config getConfig()
+        protected Config? getConfig()
         {
-            return board_.getConfig();
+            return board_!.getConfig();
         }
 
         /// <summary>
@@ -271,6 +285,9 @@ namespace XTC.oelMVCS
 
         }
 
-        private Board board_ = null;
+        private Board? board_;
+        private string uid_;
+        private Dictionary<string, UserData> userDataS_ = new Dictionary<string, UserData>();
+        private Dictionary<string, Action<Model.Status?, object>> subscriberS_ = new Dictionary<string, Action<Model.Status?, object>>();
     }
 }//namespace

@@ -3,7 +3,6 @@
      All rights reserved.
 *********************************************************************/
 
-
 namespace XTC.oelMVCS
 {
     public class Error

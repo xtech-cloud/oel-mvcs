@@ -1,80 +1,85 @@
 
+/********************************************************************
+     Copyright (c) XTechCloud
+     All rights reserved.
+*********************************************************************/
+
 namespace XTC.oelMVCS
 {
     // 内部通讯的主板
-    // get和set方法为oel的多语言规范，不要直接使用C#的属性存取
-    public class Board
+    // get和set方法为多语言规范，不直接使用C#的属性存取
+    internal class Board
     {
-        public void setServiceCenter(ServiceCenter _value)
+        internal void setServiceCenter(ServiceCenter? _value)
         {
             serviceCenter_ = _value;
         }
 
-        public void setControllerCenter(ControllerCenter _value)
+        internal void setControllerCenter(ControllerCenter? _value)
         {
             controllerCenter_ = _value;
         }
 
-        public void setViewCenter(ViewCenter _value)
+        internal void setViewCenter(ViewCenter? _value)
         {
             viewCenter_ = _value;
         }
 
-        public void setModelCenter(ModelCenter _value)
+        internal void setModelCenter(ModelCenter? _value)
         {
             modelCenter_ = _value;
         }
 
-        public void setConfig(Config _value)
+        public void setConfig(Config? _value)
         {
             config_ = _value;
         }
 
-        public void setLogger(Logger _logger)
+        public void setLogger(Logger? _logger)
         {
             logger_ = _logger;
         }
 
-        public Config getConfig()
+        public Config? getConfig()
         {
             return config_;
         }
 
-        public Logger getLogger()
+        public Logger? getLogger()
         {
             return logger_;
         }
 
-        public ServiceCenter getServiceCenter()
+        internal ServiceCenter getServiceCenter()
         {
-            return serviceCenter_;
+            return serviceCenter_!;
         }
 
-        public ControllerCenter getControllerCenter()
+        internal ControllerCenter getControllerCenter()
         {
-            return controllerCenter_;
+            return controllerCenter_!;
         }
 
-        public ViewCenter getViewCenter()
+        internal ViewCenter getViewCenter()
         {
-            return viewCenter_;
+            return viewCenter_!;
         }
 
-        public ModelCenter getModelCenter()
+        internal ModelCenter getModelCenter()
         {
-            return modelCenter_;
+            return modelCenter_!;
         }
 
-        private ServiceCenter serviceCenter_ = null;
+        private ServiceCenter? serviceCenter_;
 
-        private ControllerCenter controllerCenter_ = null;
+        private ControllerCenter? controllerCenter_;
 
-        private ViewCenter viewCenter_ = null;
+        private ViewCenter? viewCenter_;
 
-        private ModelCenter modelCenter_ = null;
+        private ModelCenter? modelCenter_;
 
-        private Config config_ = null;
+        private Config? config_;
 
-        private Logger logger_ = null;
+        private Logger? logger_;
     }
 }

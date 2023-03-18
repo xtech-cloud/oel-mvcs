@@ -1,15 +1,27 @@
-﻿/*
-         ______________________________
-        \|/      \|/                   |
-    Service -> Model -> Controller -> View
-                 /|\         |
-                  |__________|
-*/
+﻿/********************************************************************
+     Copyright (c) XTechCloud
+     All rights reserved.
+*********************************************************************/
+
+using System.Collections.Generic;
 
 namespace XTC.oelMVCS
 {
+    /// <summary>
+    /// 框架类
+    /// </summary>
     public class Framework
     {
+        private StaticPipe staticPipe_;
+        private DynamicPipe dynamicPipe_;
+        private Board board_;
+
+        /// <summary>
+        /// 用户数据映射表
+        /// </summary>
+        private Dictionary<string, UserData> userDatas_ = new Dictionary<string, UserData>();
+
+        #region Get Set
         public StaticPipe getStaticPipe()
         {
             return staticPipe_;
@@ -29,6 +41,7 @@ namespace XTC.oelMVCS
         {
             board_.setLogger(_value);
         }
+        #endregion
 
         public Framework()
         {
@@ -39,17 +52,43 @@ namespace XTC.oelMVCS
 
         ~Framework()
         {
-            board_ = null;
-            staticPipe_ = null;
-            dynamicPipe_ = null;
         }
+
+        /// <summary>
+        /// 设置用户数据
+        /// </summary>
+        /// <param name="_key">键</param>
+        /// <param name="_value">值，为空时删除对应的键</param>
+        public void setUserData(string _key, UserData? _value)
+        {
+            if(null == _value)
+            {
+                if (userDatas_.ContainsKey(_key))
+                    userDatas_.Remove(_key);
+                return;
+            }
+            userDatas_[_key] = _value;
+        }
+
+        /// <summary>
+        /// 获取用户数据
+        /// </summary>
+        /// <param name="_key">键</param>
+        /// <returns>不存在时返回空</returns>
+        public UserData? getUserData(string _key)
+        {
+            if (!userDatas_.ContainsKey(_key))
+                return null;
+            return userDatas_[_key];
+        }
+
 
         /// <summary>
         /// 框架初始化，完成各层中心的实例化
         /// </summary>
         public void Initialize()
         {
-            board_.getLogger().Info("initialize framework");
+            board_.getLogger()?.Info("initialize framework");
             board_.setModelCenter(new ModelCenter(board_));
             board_.setViewCenter(new ViewCenter(board_));
             board_.setControllerCenter(new ControllerCenter(board_));
@@ -62,7 +101,7 @@ namespace XTC.oelMVCS
         /// </summary>
         public void Setup()
         {
-            board_.getLogger().Info("setup framework");
+            board_.getLogger()?.Info("setup framework");
             board_.getModelCenter().PreSetup();
             board_.getViewCenter().PreSetup();
             board_.getControllerCenter().PreSetup();
@@ -83,7 +122,7 @@ namespace XTC.oelMVCS
         /// </summary>
         public void Dismantle()
         {
-            board_.getLogger().Info("dismantle framework");
+            board_.getLogger()?.Info("dismantle framework");
             board_.getServiceCenter().PreDismantle();
             board_.getControllerCenter().PreDismantle();
             board_.getViewCenter().PreDismantle();
@@ -104,16 +143,13 @@ namespace XTC.oelMVCS
         /// </summary>
         public void Release()
         {
-            board_.getLogger().Info("release framework");
+            board_.getLogger()?.Info("release framework");
             board_.setViewCenter(null);
             board_.setServiceCenter(null);
             board_.setModelCenter(null);
             board_.setControllerCenter(null);
         }
 
-        private StaticPipe staticPipe_ = null;
-        private DynamicPipe dynamicPipe_ = null;
-        private Board board_ = null;
     }
 
 }//namespace

@@ -1,3 +1,7 @@
+/********************************************************************
+     Copyright (c) XTechCloud
+     All rights reserved.
+*********************************************************************/
 
 namespace XTC.oelMVCS
 {
@@ -15,37 +19,39 @@ namespace XTC.oelMVCS
 
     public class Logger
     {
+        private System.Diagnostics.StackTrace stackTrace_ = new System.Diagnostics.StackTrace();
+
         public void setLevel(LogLevel _level)
         {
             level_ = _level;
         }
 
-        public void Trace(string _message, params object[] _args)
+        public virtual void Trace(string _message, params object[] _args)
         {
             log(LogLevel.TRACE, this.trace, _message, _args);
         }
 
-        public void Debug(string _message, params object[] _args)
+        public virtual void Debug(string _message, params object[] _args)
         {
             log(LogLevel.DEBUG, this.debug, _message, _args);
         }
 
-        public void Info(string _message, params object[] _args)
+        public virtual void Info(string _message, params object[] _args)
         {
             log(LogLevel.INFO, this.info, _message, _args);
         }
 
-        public void Warning(string _message, params object[] _args)
+        public virtual void Warning(string _message, params object[] _args)
         {
             log(LogLevel.WARNING, this.warning, _message, _args);
         }
 
-        public void Error(string _message, params object[] _args)
+        public virtual void Error(string _message, params object[] _args)
         {
             log(LogLevel.ERROR, this.error, _message, _args);
         }
 
-        public void Exception(System.Exception _ex)
+        public virtual void Exception(System.Exception _ex)
         {
             if (level_ < LogLevel.EXCEPTION)
                 return;
@@ -90,22 +96,26 @@ namespace XTC.oelMVCS
             {
                 message = _message;
             }
-            string categoray = string.Format("oelMVCS::{0}", getMethod());
+            string? method;
+            string? file;
+            getMethod(out file, out method);
+            string categoray = string.Format("{0}::{1}", file ?? "", method ?? "");
             _log(categoray, message);
         }
 
-        private string getMethod()
+        private void getMethod(out string? _file, out string? _method)
         {
-            string method = "";
             try
             {
-                System.Diagnostics.StackFrame sf = (new System.Diagnostics.StackTrace()).GetFrame(3);
-                method = sf.GetMethod().Name;
+                System.Diagnostics.StackFrame sf = new System.Diagnostics.StackTrace().GetFrame(3);
+                _method = sf.GetMethod().Name;
+                _file = sf.GetMethod().DeclaringType.FullName;
             }
             catch (System.Exception)
             {
+                _method = "";
+                _file = "";
             }
-            return method;
         }
 
         private LogLevel level_ = LogLevel.ALL;

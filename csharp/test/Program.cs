@@ -33,6 +33,7 @@ namespace test
     }
     class SimpleModel : Model
     {
+
         public class SimpleStatus : Status
         {
             public string uuid { get; set; }
@@ -47,13 +48,17 @@ namespace test
             }
         }
 
+        public SimpleModel(string _uid) : base(_uid)
+        {
+        }
+
         protected override void preSetup()
         {
             Error err;
             status_ = spawnStatus<SimpleStatus>("SimpleStatus", out err);
             controller = findController("SimpleController") as SimpleController;
         }
-        
+
         protected override void setup()
         {
             getLogger().Info("setup SimpleModel");
@@ -67,12 +72,19 @@ namespace test
 
         public void UpdateSignin(Model.Status _reply, string _uuid)
         {
-            controller.Signin(_reply, status, _uuid); 
+            controller.Signin(_reply, status, _uuid);
         }
     }
+
     class SimpleView : View
     {
+
         private SimpleService service { get; set; }
+
+        public SimpleView(string _uid) : base(_uid)
+        {
+        }
+
         protected override void preSetup()
         {
             service = findService("SimpleService") as SimpleService;
@@ -102,6 +114,11 @@ namespace test
     class SimpleController : Controller
     {
         private SimpleView view { get; set; }
+
+        public SimpleController(string _uid) : base(_uid)
+        {
+        }
+
         protected override void preSetup()
         {
             view = findView("SimpleView") as SimpleView;
@@ -112,7 +129,7 @@ namespace test
         }
         public void Signin(Model.Status _reply, SimpleModel.SimpleStatus _status, string _uuid)
         {
-            if(_reply.getCode() != 0)
+            if (_reply.getCode() != 0)
             {
                 view.PrintError(_reply.getMessage());
                 return;
@@ -122,13 +139,43 @@ namespace test
         }
     }
 
-    class SimpleService : Service
+    class HttpSerivce : Service
     {
+        public Action<string, Dictionary<string, Any>, Options, OnReplyDelegate, OnErrorDelegate> MockProcessor { get; set; }
+        public HttpSerivce(string _uid) : base(_uid)
+        {
+        }
+
+        protected void post(string _url, Dictionary<string, Any> _parameter, Options _options, OnReplyDelegate _onReply, OnErrorDelegate _onError)
+        {
+            if (_options.useMock)
+            {
+                MockProcessor(_url, _parameter, _options, _onReply, _onError);
+            }
+            else
+            {
+                _onError(Error.NewException(new NotImplementedException()));
+            }
+        }
+    }
+
+
+    class SimpleService : HttpSerivce
+    {
+        public delegate void SendRequestDelegate(string _url, Dictionary<string, Any> _parameter, Options _options, Action<string> _onReply, Action<Error> _onError);
+        public SendRequestDelegate Mock { get; set; }
+
         private SimpleModel model { get; set; }
+
+        public SimpleService(string _uid) : base(_uid)
+        {
+        }
+
         protected override void preSetup()
         {
             model = findModel("SimpleModel") as SimpleModel;
         }
+
         protected override void setup()
         {
             getLogger().Info("setup SimpleService");
@@ -139,34 +186,36 @@ namespace test
             Dictionary<string, Any> parameter = new Dictionary<string, Any>();
             parameter["username"] = Any.FromString(_username);
             parameter["password"] = Any.FromString(_password);
-            post("http://localhost/signin", parameter, (_reply) =>
+            Options options = new Options();
+            options.useMock = true;
+            post("http://localhost/signin", parameter, options, (_reply) =>
             {
                 Model.Status reply = Model.Status.New<Model.Status>(0, "");
-                string uuid = _reply;
+                string uuid = _reply as string;
                 model.UpdateSignin(reply, uuid);
             }, (_err) =>
             {
                 Model.Status reply = Model.Status.New<Model.Status>(_err.getCode(), _err.getMessage());
                 model.UpdateSignin(reply, "");
-            }, null);
+            });
         }
     }
 
-   
+
 
 
     class Program
     {
         class SimpleMock
         {
-            public static void MockProcessor(string _url, string _method, Dictionary<string, Any> _params, Service.OnReplyCallback _onReply, Service.OnErrorCallback _onError, Service.Options _options)
+            public static void MockProcessor(string _url, Dictionary<string, Any> _params, Service.Options _options, Service.OnReplyDelegate _onReply, Service.OnErrorDelegate _onError)
             {
                 if (!_url.Equals("http://localhost/signin"))
                 {
                     _onError(Error.NewAccessErr("404 not found"));
                     return;
                 }
-                if(_params["username"].AsString().Equals("admin") && _params["password"].AsString().Equals("11223344"))
+                if (_params["username"].AsString().Equals("admin") && _params["password"].AsString().Equals("11223344"))
                     _onReply("00000000001");
                 else
                     _onError(Error.NewAccessErr("password is not matched"));
@@ -181,14 +230,15 @@ namespace test
 
             framework.Initialize();
 
-            framework.getStaticPipe().RegisterModel("SimpleModel", new SimpleModel());
-            SimpleView simpleView = new SimpleView();
-            framework.getStaticPipe().RegisterView("SimpleView", simpleView);
-            framework.getStaticPipe().RegisterController("SimpleController", new SimpleController());
-            SimpleService service = new SimpleService();
-            service.useMock = true;
-            service.MockProcessor = SimpleMock.MockProcessor;
-            framework.getStaticPipe().RegisterService("SimpleService", service);
+            var simpleModel = new SimpleModel("SimpleModel");
+            framework.getStaticPipe().RegisterModel(simpleModel);
+            SimpleView simpleView = new SimpleView("SimpleView");
+            framework.getStaticPipe().RegisterView(simpleView);
+            var simpleController = new SimpleController("SimpleController");
+            framework.getStaticPipe().RegisterController(simpleController);
+            SimpleService simpleService = new SimpleService("SimpleService");
+            framework.getStaticPipe().RegisterService(simpleService);
+            simpleService.MockProcessor = SimpleMock.MockProcessor;
 
             framework.Setup();
 
@@ -199,10 +249,10 @@ namespace test
             }
 
             framework.Dismantle();
-            framework.getStaticPipe().CancelService("SimpleService");
-            framework.getStaticPipe().CancelController("SimpleController");
-            framework.getStaticPipe().CancelView("SimpleView");
-            framework.getStaticPipe().CancelModel("SimpleModel");
+            framework.getStaticPipe().CancelService(simpleService);
+            framework.getStaticPipe().CancelController(simpleController);
+            framework.getStaticPipe().CancelView(simpleView);
+            framework.getStaticPipe().CancelModel(simpleModel);
 
             framework.Release();
         }
